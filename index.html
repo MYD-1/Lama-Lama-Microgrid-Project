@@ -1,1 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lama Lama Microgrid Project — The Electronauts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── VARIABLES ─────────────────────────────────────── */
+:root {
+  --forest:  #1B4332;
+  --forest2: #2D6A4F;
+  --forest3: #40916C;
+  --gold:    #C49A22;
+  --gold2:   #E9C46A;
+  --ochre:   #C2611F;
+  --ochre2:  #E8892A;
+  --rust:    #8B2500;
+  --earth:   #3D1F0A;
+  --bark:    #5C3D1E;
+  --bone:    #F2E8D0;
+  --sand:    #F7F0DC;
+  --cream:   #FAFAF3;
+  --charcoal:#141410;
+  --mist:    #E4ECE6;
+  --white:   #FFFFFF;
+}
 
+/* ─── RESET ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Syne', sans-serif; background: var(--cream); color: var(--charcoal); overflow-x: hidden; }
+
+/* ─── CUSTOM CURSOR ──────────────────────────────────── */
+#cur { position:fixed; width:12px; height:12px; background:var(--gold); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .2s,height .2s; mix-blend-mode:multiply; }
+#cur-ring { position:fixed; width:36px; height:36px; border:1.5px solid var(--gold); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); opacity:.5; transition:width .3s,height .3s; }
+
+/* ─── SCROLL PROGRESS ────────────────────────────────── */
+#progress { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--gold),var(--forest3),var(--gold)); z-index:200; width:0%; transition:width .1s; }
+
+/* ─── NAV ────────────────────────────────────────────── */
+nav { position:fixed; top:3px; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:64px; transition:background .4s; }
+nav.scrolled { background:rgba(20,20,16,.95); backdrop-filter:blur(20px); border-bottom:1px solid rgba(196,154,34,.2); }
+.nav-logo { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--gold2); text-decoration:none; letter-spacing:.04em; }
+.nav-links { display:flex; gap:28px; list-style:none; }
+.nav-links a { color:rgba(255,255,255,.6); text-decoration:none; font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; transition:color .25s; }
+.nav-links a:hover { color:var(--gold2); }
+
+/* ─── SECTIONS ───────────────────────────────────────── */
+section { padding:100px 0; }
+.wrap { max-width:1160px; margin:0 auto; padding:0 48px; }
+.eyebrow { font-family:'JetBrains Mono',monospace; color:var(--gold); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.eyebrow::before { content:''; width:24px; height:1px; background:var(--gold); }
+.eyebrow-light { color:var(--gold2); }
+.eyebrow-light::before { background:var(--gold2); }
+.eyebrow-ochre { color:var(--ochre2); }
+.eyebrow-ochre::before { background:var(--ochre2); }
+.sec-h { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,4vw,3.2rem); font-weight:700; line-height:1.1; color:var(--forest); margin-bottom:16px; }
+.sec-h-white { color:var(--white); }
+.sec-lead { font-size:1rem; line-height:1.85; color:#555; max-width:640px; margin-bottom:56px; }
+.sec-lead-dim { color:rgba(255,255,255,.55); }
+
+/* ─── REVEAL ANIMATIONS ──────────────────────────────── */
+.rev { opacity:0; transform:translateY(36px); transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1); }
+.rev.in { opacity:1; transform:none; }
+.rev-l { opacity:0; transform:translateX(-36px); transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1); }
+.rev-l.in { opacity:1; transform:none; }
+.rev-r { opacity:0; transform:translateX(36px); transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1); }
+.rev-r.in { opacity:1; transform:none; }
+.d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s} .d4{transition-delay:.4s} .d5{transition-delay:.5s}
+
+/* ─── ABORIGINAL ART DOTS ────────────────────────────── */
+.abn-dots { background-image:radial-gradient(circle,rgba(194,97,31,.15) 1.5px,transparent 1.5px); background-size:26px 26px; }
+.abn-dots-light { background-image:radial-gradient(circle,rgba(27,67,50,.07) 1.5px,transparent 1.5px); background-size:26px 26px; }
+
+/* track divider */
+.track-div { width:100%; padding:14px 0; overflow:hidden; display:flex; justify-content:center; }
+.track-div svg { width:100%; height:32px; }
+
+/* ─── HERO ────────────────────────────────────────────── */
+.hero { min-height:100vh; background:var(--charcoal); display:grid; grid-template-columns:1fr 1fr; align-items:center; position:relative; overflow:hidden; padding-top:64px; }
+.hero-bg-ring { position:absolute; border-radius:50%; border:1px solid rgba(194,97,31,.12); pointer-events:none; }
+.hero-l { position:relative; z-index:2; padding:80px 64px 80px 48px; }
+.hero-tag { display:inline-flex; align-items:center; gap:10px; background:rgba(196,154,34,.12); border:1px solid rgba(196,154,34,.3); border-radius:40px; padding:6px 16px 6px 12px; margin-bottom:28px; }
+.hero-tag-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+.hero-tag span { font-family:'JetBrains Mono',monospace; color:var(--gold2); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; }
+.hero-h { font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,5.5vw,5rem); font-weight:700; color:var(--white); line-height:1.05; margin-bottom:18px; }
+.hero-h em { color:var(--gold2); font-style:italic; }
+.hero-sub { font-family:'JetBrains Mono',monospace; color:rgba(255,255,255,.4); font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; margin-bottom:28px; }
+.hero-desc { color:rgba(255,255,255,.65); font-size:.98rem; line-height:1.85; max-width:460px; margin-bottom:44px; }
+.hero-btns { display:flex; gap:14px; flex-wrap:wrap; }
+.btn-p { display:inline-flex; align-items:center; gap:8px; background:var(--gold); color:var(--charcoal); font-weight:800; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; padding:13px 26px; border-radius:4px; text-decoration:none; transition:background .2s,transform .2s; border:none; cursor:none; }
+.btn-p:hover { background:var(--gold2); transform:translateY(-2px); }
+.btn-o { display:inline-flex; align-items:center; gap:8px; background:transparent; color:rgba(255,255,255,.7); font-weight:700; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; padding:13px 26px; border-radius:4px; border:1px solid rgba(255,255,255,.2); text-decoration:none; transition:border-color .2s,color .2s,transform .2s; cursor:none; }
+.btn-o:hover { border-color:var(--gold); color:var(--gold2); transform:translateY(-2px); }
+.hero-r { position:relative; z-index:2; padding:60px 48px; display:flex; flex-direction:column; gap:14px; }
+.stat-tick { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:22px 26px; display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center; transition:background .3s,border-color .3s; position:relative; overflow:hidden; }
+.stat-tick::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--gold); transform:scaleY(0); transform-origin:bottom; transition:transform .4s; }
+.stat-tick:hover::before { transform:scaleY(1); }
+.stat-tick:hover { background:rgba(196,154,34,.09); border-color:rgba(196,154,34,.3); }
+.stat-n { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:700; color:var(--gold2); line-height:1; }
+.stat-t { color:rgba(255,255,255,.6); font-size:.8rem; line-height:1.5; }
+.stat-t strong { color:rgba(255,255,255,.9); display:block; margin-bottom:2px; }
+.scroll-hint { position:absolute; bottom:36px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; color:rgba(255,255,255,.3); font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; z-index:3; }
+.scroll-line { width:1px; height:44px; background:linear-gradient(to bottom,transparent,rgba(196,154,34,.6)); animation:sline 2s infinite; }
+@keyframes sline { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+.hero-ochre-bar { position:absolute; bottom:0; left:0; right:0; height:4px; background:linear-gradient(90deg,var(--rust),var(--ochre),var(--gold),var(--ochre),var(--rust)); z-index:3; }
+canvas#hero-canvas { position:absolute; inset:0; width:100%; height:100%; }
+
+/* ─── AOC BANNER ─────────────────────────────────────── */
+.aoc { background:var(--earth); border-bottom:3px solid var(--ochre); padding:52px 0; position:relative; overflow:hidden; }
+.aoc::after { content:''; position:absolute; inset:0; pointer-events:none; }
+.aoc-inner { display:grid; grid-template-columns:200px 1fr; gap:52px; align-items:center; }
+.aoc-heading { font-family:'Cormorant Garamond',serif; color:var(--bone); font-size:1.8rem; font-weight:700; margin-bottom:14px; }
+.aoc-body { color:rgba(242,232,208,.65); font-size:.9rem; line-height:1.85; }
+.aoc-body strong { color:var(--bone); }
+@keyframes ring-exp { 0%{transform:scale(.85);opacity:.7} 100%{transform:scale(1.2);opacity:0} }
+.pulse-r { animation:ring-exp 3s ease-out infinite; }
+.pulse-r:nth-child(2) { animation-delay:1s; }
+.pulse-r:nth-child(3) { animation-delay:2s; }
+
+/* ─── TEAM ────────────────────────────────────────────── */
+.team-sec { background:var(--charcoal); padding:72px 0; }
+.team-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:40px; }
+.t-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:28px 16px; text-align:center; transition:background .3s,transform .3s,border-color .3s; cursor:none; }
+.t-card:hover { background:rgba(196,154,34,.1); border-color:rgba(196,154,34,.3); transform:translateY(-5px); }
+.t-av { width:58px; height:58px; border-radius:50%; background:var(--forest2); border:2px solid var(--gold); margin:0 auto 14px; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; color:var(--gold2); }
+.t-name { color:white; font-weight:700; font-size:.88rem; line-height:1.35; }
+
+/* ─── CONTEXT ────────────────────────────────────────── */
+.context-sec { background:var(--cream); }
+.ctx-grid { display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:start; }
+.challenge-card { background:var(--forest); border-radius:18px; padding:48px; position:relative; overflow:hidden; }
+.challenge-card::after { content:'○'; position:absolute; bottom:-40px; right:-16px; font-size:180px; color:rgba(255,255,255,.03); font-family:'Cormorant Garamond',serif; pointer-events:none; }
+.challenge-card h3 { font-family:'Cormorant Garamond',serif; color:var(--gold2); font-size:1.7rem; margin-bottom:18px; }
+.challenge-card p { color:rgba(255,255,255,.7); line-height:1.85; font-size:.92rem; margin-bottom:12px; }
+.chk-list { margin-top:24px; display:flex; flex-direction:column; gap:8px; }
+.chk-item { display:flex; align-items:center; gap:12px; color:rgba(255,255,255,.75); font-size:.86rem; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.07); }
+.chk-item:last-child { border:none; }
+.chk-dot { width:20px; height:20px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:.62rem; color:var(--forest); font-weight:800; flex-shrink:0; }
+.stats-col { display:flex; flex-direction:column; gap:16px; }
+.stat-big { background:var(--white); border-radius:12px; padding:26px 28px; border:1px solid var(--mist); box-shadow:0 2px 16px rgba(0,0,0,.04); display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center; transition:box-shadow .3s,transform .3s; }
+.stat-big:hover { box-shadow:0 10px 36px rgba(27,67,50,.1); transform:translateY(-2px); }
+.stat-big-n { font-family:'Cormorant Garamond',serif; font-size:2.6rem; font-weight:700; line-height:1; color:var(--forest); }
+.stat-big-n.g { color:var(--gold); }
+.stat-big-t { font-size:.84rem; line-height:1.5; color:#666; }
+
+/* ─── PESTEL TABS ─────────────────────────────────────── */
+.pestel-sec { background:var(--forest); padding:100px 0; }
+.ptabs { display:flex; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.1); margin-bottom:32px; }
+.ptab { flex:1; padding:13px 8px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:500; letter-spacing:.1em; color:rgba(255,255,255,.45); background:rgba(255,255,255,.04); border:none; cursor:none; transition:background .25s,color .25s; border-right:1px solid rgba(255,255,255,.08); }
+.ptab:last-child { border-right:none; }
+.ptab.active,.ptab:hover { background:var(--gold); color:var(--forest); font-weight:700; }
+.ppanel { display:none; animation:fdin .35s ease; }
+.ppanel.active { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+@keyframes fdin { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.p-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:26px; }
+.p-card:hover { background:rgba(196,154,34,.09); border-color:rgba(196,154,34,.3); }
+.p-card h4 { color:var(--gold2); font-size:.9rem; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.p-badge { width:26px; height:26px; background:var(--gold); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:.78rem; color:var(--forest); font-weight:800; flex-shrink:0; }
+.p-card ul { list-style:none; }
+.p-card li { color:rgba(255,255,255,.65); font-size:.83rem; line-height:1.7; padding:4px 0 4px 14px; position:relative; }
+.p-card li::before { content:'→'; position:absolute; left:0; color:var(--gold); font-size:.68rem; top:6px; }
+.p-link { grid-column:1/-1; background:rgba(196,154,34,.1); border:1px solid rgba(196,154,34,.3); border-radius:10px; padding:18px 22px; color:rgba(255,255,255,.8); font-size:.86rem; line-height:1.7; }
+.p-link strong { color:var(--gold2); }
+
+/* ─── USER JOURNEY ────────────────────────────────────── */
+.journey-sec { background:var(--sand); position:relative; }
+.journey-sec::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,var(--rust),var(--ochre2),var(--gold2),var(--ochre2),var(--rust)); }
+.j-wrap { display:grid; grid-template-columns:260px 1fr; border-radius:18px; overflow:hidden; box-shadow:0 8px 48px rgba(0,0,0,.1); }
+.j-nav { background:var(--forest); display:flex; flex-direction:column; }
+.j-btn { padding:22px 26px; border:none; background:transparent; text-align:left; cursor:none; border-bottom:1px solid rgba(255,255,255,.07); transition:background .25s; display:flex; align-items:center; gap:14px; }
+.j-btn:last-child { border-bottom:none; }
+.j-btn:hover,.j-btn.active { background:rgba(196,154,34,.15); }
+.j-time { font-family:'JetBrains Mono',monospace; font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.4); display:block; margin-bottom:3px; transition:color .25s; }
+.j-btn.active .j-time { color:var(--gold2); }
+.j-label { color:rgba(255,255,255,.7); font-size:.84rem; font-weight:600; }
+.j-btn.active .j-label { color:white; }
+.j-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.2); margin-left:auto; flex-shrink:0; transition:background .25s; }
+.j-btn.active .j-dot { background:var(--gold); }
+.j-content { background:var(--white); padding:52px; }
+.j-panel { display:none; animation:fdin .4s ease; }
+.j-panel.active { display:block; }
+.j-tag { display:inline-flex; align-items:center; gap:8px; padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:18px; }
+.e1 { background:rgba(196,154,34,.15); color:#8B6914; }
+.e2 { background:rgba(160,90,20,.12); color:#7B4A0A; }
+.e3 { background:rgba(45,106,79,.12); color:var(--forest2); }
+.e4 { background:rgba(92,61,30,.12); color:var(--bark); }
+.e5 { background:rgba(30,30,30,.08); color:#444; }
+.j-panel h3 { font-family:'Cormorant Garamond',serif; font-size:1.9rem; color:var(--forest); margin-bottom:6px; }
+.j-action { color:var(--forest2); font-size:1rem; font-weight:600; margin-bottom:18px; }
+.j-pain { background:rgba(220,50,50,.06); border-left:3px solid #C0392B; border-radius:0 8px 8px 0; padding:14px 18px; margin-bottom:20px; }
+.j-pain-lbl { font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:.15em; text-transform:uppercase; color:#C0392B; margin-bottom:5px; }
+.j-pain p { color:#7A1A1A; font-size:.88rem; line-height:1.7; }
+.j-sol { background:rgba(27,67,50,.07); border-left:3px solid var(--forest3); border-radius:0 8px 8px 0; padding:14px 18px; }
+.j-sol-lbl { font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:.15em; text-transform:uppercase; color:var(--forest3); margin-bottom:5px; }
+.j-sol p { color:var(--forest); font-size:.88rem; line-height:1.7; }
+
+/* ─── DECISION MATRIX ─────────────────────────────────── */
+.matrix-sec { background:var(--cream); }
+.mx-wrap { background:var(--white); border-radius:16px; overflow:hidden; box-shadow:0 4px 32px rgba(0,0,0,.06); }
+table.mx { width:100%; border-collapse:collapse; }
+table.mx th { background:var(--forest); color:white; padding:14px 16px; font-size:.72rem; font-weight:700; letter-spacing:.06em; text-align:center; white-space:nowrap; }
+table.mx th:first-child { text-align:left; min-width:170px; }
+table.mx td { padding:12px 16px; font-size:.82rem; border-bottom:1px solid var(--mist); text-align:center; transition:background .2s; }
+table.mx td:first-child { text-align:left; font-weight:600; font-size:.8rem; color:#444; }
+table.mx tr:hover td { background:rgba(27,67,50,.03); }
+.mx-win td { background:rgba(196,154,34,.07)!important; }
+.sc { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; font-size:.78rem; font-weight:700; }
+.s5{background:var(--forest);color:white} .s4{background:var(--forest3);color:white} .s3{background:rgba(27,67,50,.15);color:var(--forest)} .s2{background:rgba(0,0,0,.06);color:#aaa} .s1{background:rgba(0,0,0,.04);color:#ccc}
+.mx-total td { background:var(--charcoal)!important; color:white!important; font-weight:800!important; font-size:.88rem!important; }
+.win-badge { display:inline-flex; align-items:center; background:var(--gold); color:var(--forest); font-size:.6rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:3px; margin-left:5px; vertical-align:middle; }
+
+/* ─── SYSTEM ARCHITECTURE ─────────────────────────────── */
+.solution-sec { background:var(--charcoal); }
+.sol-grid { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start; }
+.diag-node { border-radius:10px; padding:16px 20px; cursor:none; transition:transform .25s,box-shadow .25s; }
+.diag-node:hover,.diag-node.active-node { transform:scale(1.03); box-shadow:0 0 0 2px var(--gold2),0 8px 28px rgba(196,154,34,.3); }
+.n-solar { background:var(--gold); color:var(--forest); }
+.n-diesel { background:rgba(92,61,30,.7); color:white; border:1px solid rgba(255,255,255,.1); }
+.n-inv { background:rgba(255,255,255,.08); color:white; border:1px solid rgba(255,255,255,.12); }
+.n-batt { background:var(--forest2); color:white; border:1px solid rgba(255,255,255,.15); }
+.diag-node h4 { font-size:.88rem; font-weight:700; margin-bottom:2px; }
+.diag-node small { font-family:'JetBrains Mono',monospace; font-size:.66rem; opacity:.7; }
+.diag-row { display:flex; gap:10px; justify-content:center; margin-bottom:8px; }
+.diag-arr { text-align:center; color:rgba(196,154,34,.5); font-size:1.2rem; margin:3px 0; }
+.loads-row { display:flex; gap:7px; flex-wrap:wrap; justify-content:center; }
+.load-chip { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.7); font-size:.7rem; padding:6px 12px; border-radius:20px; cursor:none; transition:background .2s,border-color .2s; }
+.load-chip:hover { background:rgba(196,154,34,.15); border-color:rgba(196,154,34,.4); }
+.node-info { margin-top:20px; background:rgba(255,255,255,.04); border:1px solid rgba(196,154,34,.2); border-radius:10px; padding:20px; min-height:80px; }
+.node-info h4 { color:var(--gold2); font-size:.88rem; margin-bottom:7px; }
+.node-info p { color:rgba(255,255,255,.6); font-size:.8rem; line-height:1.75; }
+.feat-list { display:flex; flex-direction:column; gap:14px; }
+.feat { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-left:3px solid var(--gold); border-radius:8px; padding:20px 24px; transition:background .3s,transform .25s; cursor:none; }
+.feat:hover { background:rgba(196,154,34,.1); transform:translateX(5px); }
+.feat h4 { color:var(--gold2); font-size:.88rem; font-weight:700; margin-bottom:6px; }
+.feat p { color:rgba(255,255,255,.55); font-size:.8rem; line-height:1.7; }
+
+/* ─── BATTERY SIMULATOR ───────────────────────────────── */
+.sim-sec { background:var(--forest); padding:100px 0; }
+.sim-grid { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
+.sim-l h2 { font-family:'Cormorant Garamond',serif; color:white; font-size:2.3rem; margin-bottom:14px; }
+.sim-l p { color:rgba(255,255,255,.6); font-size:.92rem; line-height:1.85; margin-bottom:28px; }
+.sim-lbl { font-family:'JetBrains Mono',monospace; color:var(--gold); font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; margin-bottom:8px; }
+.sim-pct { font-family:'Cormorant Garamond',serif; font-size:3.8rem; font-weight:700; color:var(--gold2); line-height:1; margin-bottom:4px; }
+.sim-status { font-family:'JetBrains Mono',monospace; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:24px; }
+input[type=range].batt-slider { width:100%; -webkit-appearance:none; height:6px; border-radius:3px; background:rgba(255,255,255,.15); outline:none; }
+input[type=range].batt-slider::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--gold); cursor:none; box-shadow:0 0 10px rgba(196,154,34,.5); border:2px solid white; }
+.sim-nodes { display:flex; flex-direction:column; gap:8px; }
+.sim-node { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:10px; transition:all .4s; border:1px solid rgba(255,255,255,.08); }
+.sim-node.on { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.12); }
+.sim-node.off { background:rgba(0,0,0,.15); border-color:rgba(255,255,255,.04); opacity:.45; }
+.sim-node.priority { background:rgba(196,154,34,.1)!important; border-color:rgba(196,154,34,.5)!important; opacity:1!important; }
+.sim-name { font-size:.88rem; font-weight:700; color:white; display:flex; align-items:center; gap:10px; }
+.led { width:10px; height:10px; border-radius:50%; transition:background .4s,box-shadow .4s; }
+.led-on { background:#4ADE80; box-shadow:0 0 8px #4ADE80; }
+.led-off { background:#444; }
+.led-p { background:var(--gold2); box-shadow:0 0 10px rgba(196,154,34,.7); }
+.sim-st { font-family:'JetBrains Mono',monospace; font-size:.68rem; color:rgba(255,255,255,.4); letter-spacing:.06em; }
+.sim-st.act { color:#4ADE80; }
+.sim-st.pri { color:var(--gold2); }
+.diesel-st { margin-top:14px; padding:12px 18px; border-radius:10px; border:1px solid; font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:600; letter-spacing:.07em; text-align:center; transition:all .4s; }
+.d-off { background:rgba(0,0,0,.2); border-color:rgba(255,255,255,.1); color:rgba(255,255,255,.3); }
+.d-on { background:rgba(92,61,30,.4); border-color:rgba(196,60,30,.5); color:#FFAA80; }
+
+/* ─── LINE CHART ──────────────────────────────────────── */
+.chart-sec { background:var(--sand); }
+.chart-card { background:var(--white); border-radius:18px; padding:44px; box-shadow:0 4px 36px rgba(0,0,0,.06); margin-bottom:36px; }
+.chart-hdr { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:28px; }
+.chart-hdr-title { font-family:'Cormorant Garamond',serif; color:var(--forest); font-size:1.2rem; font-weight:700; }
+.chart-legend { display:flex; gap:20px; flex-wrap:wrap; }
+.leg-item { display:flex; align-items:center; gap:7px; font-size:.76rem; color:#777; }
+.leg-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.chart-toggles { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:flex-end; }
+.ctog { padding:6px 14px; border-radius:20px; border:1.5px solid var(--mist); background:transparent; font-family:'Syne',sans-serif; font-size:.7rem; font-weight:700; color:#888; cursor:none; transition:all .25s; }
+.ctog.active,.ctog:hover { background:var(--forest); color:white; border-color:var(--forest); }
+.savings-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:24px; padding-top:20px; border-top:1px solid var(--mist); }
+.sav-item { text-align:center; }
+.sav-val { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:700; line-height:1; }
+.sav-lbl { font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:.13em; text-transform:uppercase; color:#999; margin-top:3px; }
+
+/* ─── 3D MODEL ────────────────────────────────────────── */
+.model-sec { background:var(--charcoal); padding:100px 0; position:relative; overflow:hidden; }
+.model-grid { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start; }
+.model-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; justify-content:center; }
+.mbtn { padding:6px 14px; border-radius:20px; border:1.5px solid rgba(255,255,255,.15); background:transparent; color:rgba(255,255,255,.6); font-family:'Syne',sans-serif; font-size:.7rem; font-weight:700; cursor:none; transition:all .25s; }
+.mbtn.active,.mbtn:hover { background:var(--ochre); border-color:var(--ochre); color:white; }
+.model-legend { display:flex; flex-direction:column; gap:7px; margin-top:14px; }
+.mleg { display:flex; align-items:center; gap:9px; font-size:.76rem; color:rgba(255,255,255,.5); }
+.mleg-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+.model-info { margin-top:14px; background:rgba(255,255,255,.04); border:1px solid rgba(196,154,34,.2); border-radius:10px; padding:18px; min-height:75px; }
+.model-info h4 { color:var(--gold2); font-size:.86rem; margin-bottom:5px; }
+.model-info p { color:rgba(255,255,255,.6); font-size:.79rem; line-height:1.7; }
+
+/* ─── SOLAR SIM ───────────────────────────────────────── */
+.solar-sec { background:var(--cream); padding:100px 0; }
+.solar-card { background:var(--white); border-radius:18px; padding:44px; box-shadow:0 4px 36px rgba(0,0,0,.06); }
+.sky { width:100%; height:150px; border-radius:12px; position:relative; overflow:hidden; margin-bottom:24px; transition:background 1.2s; }
+.sun { position:absolute; width:42px; height:42px; border-radius:50%; top:50%; transform:translateY(-50%); transition:left 1.2s,opacity .8s,box-shadow .8s; z-index:2; }
+.sun-glow { position:absolute; width:80px; height:80px; border-radius:50%; top:50%; transform:translateY(-50%) translate(-19px,-19px); transition:left 1.2s,opacity .8s; z-index:1; }
+.horizon { position:absolute; bottom:0; left:0; right:0; height:34px; transition:background 1.2s; }
+.solar-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.ss { background:rgba(27,67,50,.06); border-radius:10px; padding:14px 10px; text-align:center; border:1px solid rgba(27,67,50,.1); transition:background .4s,border-color .4s; }
+.ss.chg { background:rgba(196,154,34,.1); border-color:rgba(196,154,34,.3); }
+.ss-val { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:700; color:var(--forest); line-height:1; transition:color .4s; }
+.ss-lbl { font-family:'JetBrains Mono',monospace; font-size:.58rem; letter-spacing:.1em; text-transform:uppercase; color:#888; margin-top:3px; }
+.time-row { display:flex; align-items:center; gap:14px; margin-top:16px; }
+.time-row label { font-family:'JetBrains Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:#888; white-space:nowrap; }
+.time-disp { font-family:'JetBrains Mono',monospace; font-size:.76rem; color:var(--forest); font-weight:600; min-width:46px; text-align:right; }
+input[type=range].tslider { flex:1; -webkit-appearance:none; height:5px; border-radius:3px; background:var(--mist); outline:none; }
+input[type=range].tslider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--forest); cursor:none; border:2px solid white; box-shadow:0 2px 6px rgba(0,0,0,.2); }
+
+/* ─── SONGLINES ───────────────────────────────────────── */
+.songlines-sec { background:var(--earth); padding:100px 0; position:relative; overflow:hidden; }
+.sl-grid { display:grid; grid-template-columns:1fr 1fr; gap:52px; align-items:start; margin-top:44px; }
+.sl-cards { display:flex; flex-direction:column; gap:12px; }
+.sl-card { background:rgba(255,255,255,.05); border:1px solid rgba(194,97,31,.2); border-radius:12px; padding:20px 22px; border-left:3px solid var(--ochre); transition:background .3s,transform .25s; cursor:none; }
+.sl-card:hover,.sl-card.act { background:rgba(194,97,31,.12); transform:translateX(5px); }
+.sl-card h4 { color:var(--bone); font-size:.88rem; font-weight:700; margin-bottom:5px; }
+.sl-card p { color:rgba(242,232,208,.6); font-size:.8rem; line-height:1.65; }
+
+/* ─── COSTS ───────────────────────────────────────────── */
+.costs-sec { background:var(--sand); padding:100px 0; }
+.costs-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+.cost-card { background:var(--white); border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.06); }
+.cost-hdr { background:var(--forest); padding:16px 24px; font-family:'Cormorant Garamond',serif; color:var(--gold2); font-size:1rem; }
+table.ct { width:100%; border-collapse:collapse; }
+table.ct td { padding:12px 24px; font-size:.85rem; border-bottom:1px solid var(--mist); }
+table.ct td:last-child { text-align:right; font-weight:700; color:var(--forest); }
+.ct-tot td { background:rgba(27,67,50,.06)!important; font-weight:800!important; }
+.ct-grant td { color:var(--bark)!important; }
+.ct-net td { background:var(--forest)!important; color:white!important; font-weight:800!important; font-size:.95rem!important; }
+.ct-net td:last-child { color:var(--gold2)!important; }
+.funding-list { display:flex; flex-direction:column; gap:9px; }
+.fund-item { display:flex; align-items:center; gap:11px; font-size:.84rem; color:#555; padding:9px 0; border-bottom:1px solid var(--mist); }
+.fund-item:last-child { border:none; }
+.fund-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.savings-hero { background:var(--forest); border-radius:14px; padding:26px; margin-top:16px; text-align:center; }
+.savings-hero-val { font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:700; color:var(--gold2); }
+.savings-hero-lbl { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:4px; }
+.savings-hero-sub { color:rgba(255,255,255,.6); font-size:.82rem; line-height:1.7; margin-top:8px; }
+
+/* ─── RISKS ───────────────────────────────────────────── */
+.risks-sec { background:var(--cream); padding:100px 0; }
+.risk-acc { display:flex; flex-direction:column; gap:10px; }
+.risk-item { background:var(--white); border-radius:12px; border:1px solid var(--mist); overflow:hidden; transition:box-shadow .3s; }
+.risk-item:hover { box-shadow:0 4px 18px rgba(0,0,0,.07); }
+.risk-hdr { display:flex; align-items:center; justify-content:space-between; padding:22px 26px; cursor:none; }
+.risk-hdr-l { display:flex; align-items:center; gap:14px; }
+.rbadge { padding:3px 10px; border-radius:20px; font-size:.66rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.rb-hi { background:rgba(192,57,43,.1); color:#C0392B; }
+.rb-med { background:rgba(196,154,34,.15); color:#8B6914; }
+.risk-title { font-weight:700; font-size:.92rem; color:var(--forest); }
+.risk-chev { width:22px; height:22px; border-radius:50%; background:var(--mist); display:flex; align-items:center; justify-content:center; transition:transform .3s,background .25s; font-size:.76rem; }
+.risk-item.open .risk-chev { transform:rotate(180deg); background:var(--forest); color:white; }
+.risk-body { max-height:0; overflow:hidden; transition:max-height .4s cubic-bezier(.16,1,.3,1); }
+.risk-inner { padding:0 26px 24px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.rbox { border-radius:8px; padding:18px; }
+.rbox h5 { font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:8px; }
+.r-risk { background:rgba(192,57,43,.06); border-left:3px solid #C0392B; }
+.r-risk h5 { color:#C0392B; }
+.r-risk p { color:#7A1A1A; font-size:.83rem; line-height:1.7; }
+.r-mit { background:rgba(27,67,50,.06); border-left:3px solid var(--forest3); }
+.r-mit h5 { color:var(--forest); }
+.r-mit p { color:#2A4A38; font-size:.83rem; line-height:1.7; }
+
+/* ─── IMPLEMENTATION ─────────────────────────────────── */
+.impl-sec { background:var(--sand); padding:100px 0; }
+.gantt-card { background:var(--white); border-radius:16px; padding:32px; box-shadow:0 4px 24px rgba(0,0,0,.06); margin-bottom:44px; overflow-x:auto; }
+.gantt-legend { display:flex; gap:18px; flex-wrap:wrap; margin-top:14px; }
+.tl { position:relative; max-width:800px; margin:0 auto; }
+.tl::before { content:''; position:absolute; left:28px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,var(--gold),var(--forest),var(--gold),var(--forest)); }
+.tl-item { display:flex; gap:36px; padding-bottom:44px; }
+.tl-item:last-child { padding-bottom:0; }
+.tl-num { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; flex-shrink:0; position:relative; z-index:1; box-shadow:0 4px 16px rgba(0,0,0,.12); }
+.tn1{background:var(--gold);color:var(--forest)} .tn2{background:var(--forest);color:white} .tn3{background:var(--gold);color:var(--forest)} .tn4{background:var(--forest);color:white}
+.tl-body { padding-top:12px; }
+.tl-body h4 { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--forest); margin-bottom:7px; }
+.tl-body p { color:#666; font-size:.88rem; line-height:1.8; }
+.phase-lbl { font-family:'JetBrains Mono',monospace; font-size:.65rem; color:var(--gold); margin-left:8px; }
+
+/* ─── COMMUNITY ──────────────────────────────────────── */
+.community-sec { background:var(--forest); padding:100px 0; position:relative; overflow:hidden; }
+.comm-cards { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:40px; }
+.comm-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:26px; }
+.comm-card-lbl { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.18em; text-transform:uppercase; margin-bottom:10px; }
+.comm-card p { color:rgba(255,255,255,.7); font-size:.88rem; line-height:1.85; }
+.principles-grid { display:grid; grid-template-columns:1fr 1fr; gap:28px; background:rgba(255,255,255,.05); border:1px solid rgba(196,154,34,.25); border-radius:14px; padding:32px; }
+.prin-list { display:flex; flex-direction:column; gap:10px; }
+.prin { display:flex; gap:12px; align-items:flex-start; }
+.prin-dot { width:20px; height:20px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.62rem; color:var(--forest); font-weight:800; flex-shrink:0; margin-top:2px; }
+.prin p { color:rgba(255,255,255,.7); font-size:.86rem; line-height:1.7; }
+.prin strong { color:white; }
+.legal-list { display:flex; flex-direction:column; gap:10px; }
+.legal-box { background:rgba(255,255,255,.06); border-radius:8px; padding:13px 15px; }
+.legal-box-lbl { font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.45); display:block; margin-bottom:3px; }
+.legal-box p { color:rgba(255,255,255,.65); font-size:.83rem; line-height:1.65; }
+
+/* ─── REFERENCES ─────────────────────────────────────── */
+.refs-sec { background:var(--cream); padding:100px 0; }
+.ref-list { display:flex; flex-direction:column; gap:14px; }
+.ref-card { background:var(--white); border-radius:12px; padding:22px 26px; border:1px solid var(--mist); box-shadow:0 2px 10px rgba(0,0,0,.04); }
+.ref-num { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; margin-bottom:7px; }
+.ref-card p { font-size:.88rem; line-height:1.8; color:var(--charcoal); }
+.ref-card em { font-style:italic; }
+.ref-card a { color:var(--forest2); word-break:break-all; text-decoration:none; }
+.ref-card a:hover { text-decoration:underline; }
+.ref-use { margin-top:7px; font-size:.78rem; color:#888; font-style:italic; }
+.dt-strip { background:var(--forest); border-radius:14px; padding:32px; margin-top:52px; }
+.dt-steps { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+.dt-step { text-align:center; padding:14px 8px; }
+.dt-num { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:700; margin:0 auto 10px; }
+.dt-n1,.dt-n3,.dt-n5{background:var(--gold);color:var(--forest)} .dt-n2,.dt-n4{background:var(--forest2);border:2px solid var(--gold);color:white}
+.dt-title { color:var(--gold2); font-size:.78rem; font-weight:700; margin-bottom:4px; }
+.dt-desc { color:rgba(255,255,255,.45); font-size:.7rem; line-height:1.5; }
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer { background:var(--charcoal); padding:56px 0 40px; }
+.footer-inner { text-align:center; }
+.footer-logo { font-family:'Cormorant Garamond',serif; font-size:1.7rem; color:var(--gold2); margin-bottom:12px; }
+.footer-bar { width:44px; height:2px; background:var(--gold); margin:14px auto; }
+.footer-team { color:rgba(255,255,255,.3); font-family:'JetBrains Mono',monospace; font-size:.68rem; line-height:2; letter-spacing:.06em; }
+.footer-copy { color:rgba(255,255,255,.18); font-size:.7rem; margin-top:22px; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr} .hero-r{display:none}
+  .ctx-grid,.sol-grid,.sim-grid,.sl-grid,.costs-grid,.model-grid,.principles-grid,.comm-cards,.dt-steps{grid-template-columns:1fr}
+  .ppanel.active{grid-template-columns:1fr}
+  .j-wrap{grid-template-columns:1fr}
+  .j-nav{flex-direction:row;overflow-x:auto}
+  .j-btn{min-width:130px}
+  .team-grid{grid-template-columns:repeat(3,1fr)}
+  .nav-links{display:none}
+  .wrap{padding:0 22px}
+  nav{padding:0 22px}
+  .savings-row{grid-template-columns:repeat(2,1fr)}
+  .solar-stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div id="progress"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#home" class="nav-logo">Lama Lama Microgrid</a>
+  <ul class="nav-links">
+    <li><a href="#context">Context</a></li>
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#simulator">Simulate</a></li>
+    <li><a href="#costs">Costs</a></li>
+    <li><a href="#community">Community</a></li>
+    <li><a href="#impl">Plan</a></li>
+    <li><a href="#refs">References</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <canvas id="hero-canvas"></canvas>
+  <!-- Aboriginal art rings background -->
+  <div class="hero-bg-ring" style="width:500px;height:500px;top:10%;right:-100px;opacity:.06"></div>
+  <div class="hero-bg-ring" style="width:300px;height:300px;bottom:5%;left:40%;opacity:.04"></div>
+
+  <div class="hero-l">
+    <div class="hero-tag"><span class="hero-tag-dot"></span><span>EWB Australia Challenge · Design Area 3.2 · 2026</span></div>
+    <h1 class="hero-h">Lama Lama<br><em>Microgrid</em><br>Project</h1>
+    <p class="hero-sub">Community-owned hybrid energy · Cape York · Queensland</p>
+    <p class="hero-desc">A solar + LiFePO₄ battery + diesel backup hybrid microgrid for the Lama Lama people at Port Stewart — ending diesel dependency, enabling community ownership, surviving the tropics.</p>
+    <div class="hero-btns">
+      <a href="#solution" class="btn-p">View Design ↓</a>
+      <a href="#simulator" class="btn-o">Try Battery Sim →</a>
+    </div>
+  </div>
+
+  <div class="hero-r">
+    <div class="stat-tick rev d1">
+      <div class="stat-n" data-target="250">0</div>
+      <div class="stat-t"><strong>Community Members</strong>Lama Lama people at Port Stewart, Cape York</div>
+    </div>
+    <div class="stat-tick rev d2">
+      <div class="stat-n" data-target="90" data-suffix="%+">0</div>
+      <div class="stat-t"><strong>Remote QLD on Diesel</strong>Over 90% of remote communities still diesel-dependent</div>
+    </div>
+    <div class="stat-tick rev d3">
+      <div class="stat-n" data-prefix="$" data-target="28" data-suffix="M">0</div>
+      <div class="stat-t"><strong>QLD Government Investment</strong>Committed in 2023 to exit diesel in remote communities</div>
+    </div>
+    <div class="stat-tick rev d4">
+      <div class="stat-n" data-target="4" data-suffix="–6×">0</div>
+      <div class="stat-t"><strong>Diesel vs Grid Cost</strong>Diesel energy costs 4–6× more per kWh than grid power</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint"><div class="scroll-line"></div><span>Scroll</span></div>
+  <div class="hero-ochre-bar"></div>
+</section>
+
+<!-- ACKNOWLEDGEMENT OF COUNTRY -->
+<div class="aoc abn-dots" id="aoc">
+  <div class="wrap">
+    <div class="aoc-inner">
+      <!-- Aboriginal concentric circle SVG -->
+      <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Aboriginal dot art — concentric circles representing meeting place and Country">
+        <!-- Pulsing rings -->
+        <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(194,97,31,0.3)" stroke-width="1" class="pulse-r"/>
+        <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(194,97,31,0.2)" stroke-width="1" class="pulse-r"/>
+        <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(194,97,31,0.1)" stroke-width="1" class="pulse-r"/>
+        <!-- Ring 1 dots -->
+        <g fill="#C2611F" opacity="0.55">
+          <circle cx="100" cy="14" r="3.5"/><circle cx="131" cy="21" r="3"/><circle cx="157" cy="43" r="3.5"/><circle cx="175" cy="72" r="3"/><circle cx="181" cy="105" r="3.5"/><circle cx="171" cy="137" r="3"/><circle cx="149" cy="162" r="3.5"/><circle cx="119" cy="177" r="3"/><circle cx="85" cy="179" r="3.5"/><circle cx="54" cy="168" r="3"/><circle cx="30" cy="146" r="3.5"/><circle cx="14" cy="116" r="3"/><circle cx="10" cy="83" r="3.5"/><circle cx="19" cy="51" r="3"/><circle cx="41" cy="27" r="3.5"/><circle cx="70" cy="14" r="3"/>
+        </g>
+        <!-- Ring 2 dots -->
+        <g fill="#E8892A" opacity="0.7">
+          <circle cx="100" cy="38" r="2.5"/><circle cx="121" cy="43" r="2"/><circle cx="138" cy="55" r="2.5"/><circle cx="150" cy="73" r="2"/><circle cx="154" cy="93" r="2.5"/><circle cx="150" cy="113" r="2"/><circle cx="138" cy="130" r="2.5"/><circle cx="120" cy="143" r="2"/><circle cx="100" cy="148" r="2.5"/><circle cx="80" cy="143" r="2"/><circle cx="62" cy="130" r="2.5"/><circle cx="50" cy="113" r="2"/><circle cx="46" cy="93" r="2.5"/><circle cx="50" cy="73" r="2"/><circle cx="62" cy="55" r="2.5"/><circle cx="79" cy="43" r="2"/>
+        </g>
+        <!-- Ring 3 dots -->
+        <g fill="#F4D03F" opacity="0.85">
+          <circle cx="100" cy="62" r="2"/><circle cx="115" cy="66" r="1.8"/><circle cx="128" cy="75" r="2"/><circle cx="135" cy="88" r="1.8"/><circle cx="137" cy="102" r="2"/><circle cx="132" cy="116" r="1.8"/><circle cx="123" cy="127" r="2"/><circle cx="111" cy="133" r="1.8"/><circle cx="97" cy="135" r="2"/><circle cx="84" cy="131" r="1.8"/><circle cx="73" cy="123" r="2"/><circle cx="65" cy="112" r="1.8"/><circle cx="63" cy="98" r="2"/><circle cx="68" cy="84" r="1.8"/><circle cx="76" cy="73" r="2"/><circle cx="88" cy="65" r="1.8"/>
+        </g>
+        <!-- U-shapes (people at waterhole) -->
+        <g stroke="#E9C46A" stroke-width="2.5" fill="none" stroke-linecap="round">
+          <path d="M92,50 Q92,44 100,44 Q108,44 108,50"/>
+          <path d="M92,150 Q92,144 100,144 Q108,144 108,150"/>
+          <path d="M50,92 Q44,92 44,100 Q44,108 50,108"/>
+          <path d="M150,92 Q144,92 144,100 Q144,108 150,108"/>
+        </g>
+        <!-- Central waterhole -->
+        <circle cx="100" cy="100" r="18" fill="#8B2500" opacity="0.9"/>
+        <g fill="#F4D03F" opacity="0.9">
+          <circle cx="100" cy="83" r="2"/><circle cx="108" cy="86" r="1.5"/><circle cx="114" cy="93" r="2"/><circle cx="116" cy="101" r="1.5"/><circle cx="113" cy="109" r="2"/><circle cx="106" cy="115" r="1.5"/><circle cx="98" cy="117" r="2"/><circle cx="90" cy="114" r="1.5"/><circle cx="84" cy="107" r="2"/><circle cx="82" cy="99" r="1.5"/><circle cx="85" cy="91" r="2"/><circle cx="92" cy="85" r="1.5"/>
+        </g>
+        <circle cx="100" cy="100" r="6" fill="#C2611F"/>
+        <circle cx="100" cy="100" r="3" fill="#F4D03F"/>
+      </svg>
+      <div>
+        <div class="eyebrow eyebrow-ochre" style="margin-bottom:12px">Acknowledgement of Country</div>
+        <h2 class="aoc-heading">Caring for Country</h2>
+        <p class="aoc-body">We gratefully acknowledge the Traditional Owners and their custodianship of the lands on which this project was developed. We recognise the <strong>Lama Lama People</strong> as the Traditional Owners of the Cape York lands where this project is situated, and acknowledge their continuing cultural and spiritual connections to Country. We pay our respects to their Ancestors and descendants, and commit to a design process that honours self-determination, Free Prior and Informed Consent, and the wisdom of Elders at every stage.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACK DIVIDER -->
+<div class="track-div" style="background:var(--charcoal);padding:16px 0">
+  <svg viewBox="0 0 1200 32" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#C2611F" opacity="0.5"><circle cx="80" cy="16" r="2.5"/><circle cx="96" cy="10" r="2"/><circle cx="112" cy="16" r="2.5"/><circle cx="128" cy="10" r="2"/><circle cx="144" cy="16" r="2.5"/><circle cx="160" cy="10" r="2"/><circle cx="176" cy="16" r="2.5"/><circle cx="192" cy="10" r="2"/></g>
+    <g fill="#E8892A" opacity="0.35"><circle cx="360" cy="16" r="2.5"/><circle cx="380" cy="16" r="2.5"/><circle cx="400" cy="16" r="2.5"/><circle cx="420" cy="16" r="2.5"/><circle cx="440" cy="16" r="2.5"/><circle cx="460" cy="16" r="2.5"/><circle cx="480" cy="16" r="2.5"/><circle cx="500" cy="16" r="2.5"/><circle cx="520" cy="16" r="2.5"/><circle cx="540" cy="16" r="2.5"/><circle cx="560" cy="16" r="2.5"/><circle cx="580" cy="16" r="2.5"/><circle cx="600" cy="16" r="2.5"/><circle cx="620" cy="16" r="2.5"/><circle cx="640" cy="16" r="2.5"/><circle cx="660" cy="16" r="2.5"/><circle cx="680" cy="16" r="2.5"/><circle cx="700" cy="16" r="2.5"/><circle cx="720" cy="16" r="2.5"/><circle cx="740" cy="16" r="2.5"/><circle cx="760" cy="16" r="2.5"/><circle cx="780" cy="16" r="2.5"/><circle cx="800" cy="16" r="2.5"/><circle cx="820" cy="16" r="2.5"/><circle cx="840" cy="16" r="2.5"/></g>
+    <circle cx="600" cy="16" r="5" fill="rgba(196,154,34,.7)"/><circle cx="600" cy="16" r="10" fill="none" stroke="rgba(196,154,34,.35)" stroke-width="1"/><circle cx="600" cy="16" r="15" fill="none" stroke="rgba(196,154,34,.2)" stroke-width="1"/>
+    <g fill="#C2611F" opacity="0.5"><circle cx="1008" cy="16" r="2.5"/><circle cx="1024" cy="10" r="2"/><circle cx="1040" cy="16" r="2.5"/><circle cx="1056" cy="10" r="2"/><circle cx="1072" cy="16" r="2.5"/><circle cx="1088" cy="10" r="2"/><circle cx="1104" cy="16" r="2.5"/><circle cx="1120" cy="10" r="2"/></g>
+  </svg>
+</div>
+
+<!-- GROUP MEMBERS -->
+<section class="team-sec" id="team">
+  <div class="wrap">
+    <div class="eyebrow eyebrow-light">The Electronauts</div>
+    <h2 class="sec-h sec-h-white">Group Members</h2>
+    <div class="team-grid">
+      <div class="t-card rev d1"><div class="t-av">MA</div><div class="t-name">Mayed Alkaabi</div></div>
+      <div class="t-card rev d2"><div class="t-av">KJ</div><div class="t-name">Krithik Sai Jayaprakash</div></div>
+      <div class="t-card rev d3"><div class="t-av">GK</div><div class="t-name">Gaurav Kumar</div></div>
+      <div class="t-card rev d4"><div class="t-av">KB</div><div class="t-name">Karandeep Bedi</div></div>
+      <div class="t-card rev d5"><div class="t-av">IE</div><div class="t-name">Ibrahim El-Bahri</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXECUTIVE SUMMARY -->
+<section style="background:var(--white);padding:100px 0;border-bottom:4px solid var(--gold)" id="exec-summary">
+  <div class="wrap">
+    <div class="eyebrow">00 — Executive Summary</div>
+    <h2 class="sec-h">Executive Summary</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
+      <div>
+        <p style="font-size:1.05rem;line-height:1.9;color:#444;margin-bottom:24px">The Lama Lama people at Port Stewart, Cape York Peninsula, currently rely entirely on diesel generators for all energy needs. Diesel costs 4–6 times the price of grid electricity, creating chronic energy insecurity, noise pollution, and health risks that cascade across every aspect of daily community life.</p>
+        <p style="font-size:1.05rem;line-height:1.9;color:#444;margin-bottom:24px">This project — submitted to the Engineers Without Borders Australia Challenge under Design Area 3.2: Microgrids and Hybrid Systems for Outstations — proposes a <strong style="color:var(--forest)">community-owned, AC-coupled solar + LiFePO₄ battery + diesel backup hybrid microgrid</strong> for the Lama Lama community. The design is modular, locally maintainable, cyclone-rated, and built around the community's right to self-determination.</p>
+        <p style="font-size:1.05rem;line-height:1.9;color:#444;margin-bottom:24px">Our recommended solution — Option F, the Shared Community Microgrid with smart metering — scored 4.5/5.0 in a weighted decision matrix across six PESTEL-derived criteria. The design features a 40 kWp solar array, 120 kWh battery bank, and an auto-failover sequence that ensures the health clinic is always powered regardless of battery state.</p>
+        <p style="font-size:1.05rem;line-height:1.9;color:#444">Total gross capital cost is approximately $316,250, reduced to ~$158,250 net through an estimated 50% ARENA grant offset. Operations and maintenance costs fall below diesel running costs from Year 2, saving ~$37,000 per year by Year 3. The project complies with the Native Title Act 1993, AS/NZS 4777.1, and FPIC requirements.</p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <!-- Key outcomes summary -->
+        <div style="background:var(--forest);border-radius:14px;padding:28px">
+          <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px">Key Design Outcomes</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:12px;align-items:flex-start"><span style="width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--forest);font-weight:800;flex-shrink:0;margin-top:2px">✓</span><span style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.65">40 kWp solar + 120 kWh LiFePO₄ battery providing 48-hour autonomy at 50% DoD</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start"><span style="width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--forest);font-weight:800;flex-shrink:0;margin-top:2px">✓</span><span style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.65">Auto-failover: Solar → Battery → Diesel with clinic always on as priority load</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start"><span style="width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--forest);font-weight:800;flex-shrink:0;margin-top:2px">✓</span><span style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.65">IP65 enclosures, cyclone-rated mounting to AS/NZS 1170.2 Region C</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start"><span style="width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--forest);font-weight:800;flex-shrink:0;margin-top:2px">✓</span><span style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.65">Net community cost ~$158K after ARENA grant offset; O&amp;M saving ~$37K/year from Year 3</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start"><span style="width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--forest);font-weight:800;flex-shrink:0;margin-top:2px">✓</span><span style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.65">FPIC-compliant, Native Title Act 1993 and AS/NZS 4777.1 compliant design</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start"><span style="width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--forest);font-weight:800;flex-shrink:0;margin-top:2px">✓</span><span style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.65">Control panel co-designed in Lamalama language; 2–3 local technicians trained</span></div>
+          </div>
+        </div>
+
+        <!-- Team contributions -->
+        <div style="background:var(--sand);border-radius:14px;padding:28px;border:1px solid var(--mist)">
+          <div style="font-family:'JetBrains Mono',monospace;color:var(--forest);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px">Statement of Team Contributions — The Electronauts</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:12px;font-size:.84rem;line-height:1.65;color:#444;padding:8px 0;border-bottom:1px solid var(--mist)"><strong style="color:var(--forest);min-width:180px">Mayed Alkaabi</strong>Project context, PESTEL political/legal analysis, design requirements, presentation delivery (Sections 1, 3–4)</div>
+            <div style="display:flex;gap:12px;font-size:.84rem;line-height:1.65;color:#444;padding:8px 0;border-bottom:1px solid var(--mist)"><strong style="color:var(--forest);min-width:180px">Krithik Sai Jayaprakash</strong>PESTEL economic/social analysis, user journey map, references and source synthesis, presentation delivery (Sections 5–7)</div>
+            <div style="display:flex;gap:12px;font-size:.84rem;line-height:1.65;color:#444;padding:8px 0;border-bottom:1px solid var(--mist)"><strong style="color:var(--forest);min-width:180px">Gaurav Kumar</strong>Decision matrix, weighting rationale, user needs and design requirements table, presentation delivery (Sections 8–10)</div>
+            <div style="display:flex;gap:12px;font-size:.84rem;line-height:1.65;color:#444;padding:8px 0;border-bottom:1px solid var(--mist)"><strong style="color:var(--forest);min-width:180px">Karandeep Bedi</strong>3D microgrid node model, preliminary design solution, prototype system diagram, presentation delivery (Sections 11–13)</div>
+            <div style="display:flex;gap:12px;font-size:.84rem;line-height:1.65;color:#444;padding:8px 0"><strong style="color:var(--forest);min-width:180px">Ibrahim El-Bahri</strong>Arduino failover circuit simulation, costs and implementation plan, risks analysis, next steps, presentation delivery (Sections 14–17)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTEXT -->
+<section class="context-sec abn-dots-light" id="context">
+  <div class="wrap">
+    <div class="eyebrow">01 — Empathise</div>
+    <h2 class="sec-h">The Challenge</h2>
+    <p class="sec-lead">The Lama Lama community at Port Stewart relies entirely on diesel generators — expensive, noisy, unreliable, and vulnerable to every supply disruption.</p>
+    <div class="ctx-grid">
+      <div class="challenge-card rev-l">
+        <h3>The Problem</h3>
+        <p>Remote Indigenous communities in far-north Queensland have no grid connection. Diesel generators cost 4–6× grid prices, creating chronic energy insecurity, constant noise, and real vulnerability every time a fuel delivery is delayed by wet-season flooding.</p>
+        <p>The Lama Lama people at Port Stewart face this every day. Our goal: a modular solar + battery hybrid microgrid that scales as budget allows, can be repaired locally, and survives cyclones, 50°C heat, and feral pig damage to conduits.</p>
+        <div class="chk-list">
+          <div class="chk-item"><span class="chk-dot">✓</span>Lowers energy costs by ~$37K/year from Year 3</div>
+          <div class="chk-item"><span class="chk-dot">✓</span>Supports local employment and skills transfer</div>
+          <div class="chk-item"><span class="chk-dot">✓</span>Eliminates diesel emissions and generator noise</div>
+          <div class="chk-item"><span class="chk-dot">✓</span>Culturally appropriate, community-led by design</div>
+          <div class="chk-item"><span class="chk-dot">✓</span>Native Title Act, ILUA and FPIC compliant</div>
+        </div>
+      </div>
+      <div class="stats-col">
+        <div class="stat-big rev d1"><div class="stat-big-n">~250</div><div class="stat-big-t"><strong>Lama Lama community members</strong> at Port Stewart, Cape York Peninsula</div></div>
+        <div class="stat-big rev d2"><div class="stat-big-n g">90%+</div><div class="stat-big-t"><strong>Remote QLD communities</strong> still relying on diesel generators for all power</div></div>
+        <div class="stat-big rev d3"><div class="stat-big-n">$28M</div><div class="stat-big-t"><strong>QLD Government investment</strong> committed in 2023 to exit diesel in remote communities</div></div>
+        <div class="stat-big rev d4"><div class="stat-big-n g">4–6×</div><div class="stat-big-t"><strong>Higher cost</strong> of diesel energy vs grid-connected households per kWh</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PESTEL -->
+<section class="pestel-sec" id="research">
+  <div class="wrap">
+    <div class="eyebrow eyebrow-light">02 — Empathise</div>
+    <h2 class="sec-h sec-h-white">PESTEL Analysis</h2>
+    <p class="sec-lead sec-lead-dim">Click each tab to explore how every contextual factor shaped our design decisions.</p>
+    <div class="ptabs">
+      <button class="ptab active" onclick="showPestel('P',this)">Political</button>
+      <button class="ptab" onclick="showPestel('E',this)">Economic</button>
+      <button class="ptab" onclick="showPestel('S',this)">Social</button>
+      <button class="ptab" onclick="showPestel('T',this)">Tech</button>
+      <button class="ptab" onclick="showPestel('E2',this)">Environmental</button>
+      <button class="ptab" onclick="showPestel('L',this)">Legal</button>
+    </div>
+    <div id="pp-P" class="ppanel active">
+      <div class="p-card"><h4><span class="p-badge">P</span>Self-Determination</h4><ul><li>Lama Lama elders must lead all decision-making at every stage</li><li>Participatory design ensures self-determination is genuine, not tokenistic</li><li>FPIC documented and signed before any construction commences</li></ul></div>
+      <div class="p-card"><h4><span class="p-badge">P</span>Funding Landscape</h4><ul><li>ARENA has dedicated off-grid remote community programs</li><li>QLD DRDMW ongoing remote community support funding available</li><li>$28M QLD Government commitment signals sustained political will</li></ul></div>
+      <div class="p-link">💡 <strong>Design impact:</strong> Community Ownership weighted 10% in decision matrix. FPIC is a mandatory pass/fail gate before any construction begins.</div>
+    </div>
+    <div id="pp-E" class="ppanel">
+      <div class="p-card"><h4><span class="p-badge">E</span>Cost Gap</h4><ul><li>Diesel costs 4–6× the price of grid electricity per kWh</li><li>Daily diesel spend of $8–12 per household — a major ongoing burden</li><li>Fuel price volatility creates unpredictable ongoing costs</li></ul></div>
+      <div class="p-card"><h4><span class="p-badge">E</span>Viability</h4><ul><li>ARENA 50% grant offset brings net cost to ~$158K</li><li>O&amp;M costs drop below diesel by Year 3, saving ~$37K/year</li><li>Community co-op model funds long-term maintenance sustainably</li></ul></div>
+      <div class="p-link">💡 <strong>Design impact:</strong> Affordability weighted 20% in decision matrix. Backup diesel retained to manage fuel shock risk. Co-op tariff ~$8/week per household funds O&amp;M.</div>
+    </div>
+    <div id="pp-S" class="ppanel">
+      <div class="p-card"><h4><span class="p-badge">S</span>Cascading Harm</h4><ul><li>Power insecurity → health impacts, education disruption, food spoilage</li><li>Medical devices such as CPAP machines fail without reliable power</li><li>Children cannot complete homework without lighting or internet access</li></ul></div>
+      <div class="p-card"><h4><span class="p-badge">S</span>Employment &amp; Noise</h4><ul><li>Diesel generator noise is a constant daily quality-of-life burden</li><li>24/7 solar-battery operation eliminates generator noise entirely</li><li>Training 2–3 local community technicians creates employment and resilience</li></ul></div>
+      <div class="p-link">💡 <strong>Design impact:</strong> Reliability weighted highest at 25%. Health clinic is always-on priority load in auto-failover sequence regardless of battery state.</div>
+    </div>
+    <div id="pp-T" class="ppanel">
+      <div class="p-card"><h4><span class="p-badge">T</span>System Architecture</h4><ul><li>AC-coupled hybrid inverters preferred — modular and expandable</li><li>LiFePO₄ chemistry selected for thermal stability in high-heat environments</li><li>Satellite remote monitoring essential given wet-season road closures</li></ul></div>
+      <div class="p-card"><h4><span class="p-badge">T</span>Operating Conditions</h4><ul><li>Must operate reliably at 35°C+ and greater than 80% relative humidity</li><li>Wildlife and feral pig damage to conduits is a documented failure mode</li><li>Armoured conduits and IP65+ enclosures specified throughout</li></ul></div>
+      <div class="p-link">💡 <strong>Design impact:</strong> Maintainability weighted 20%. Slide-out modular components require no tools. All components icon-labelled for community operation without specialists.</div>
+    </div>
+    <div id="pp-E2" class="ppanel">
+      <div class="p-card"><h4><span class="p-badge">E</span>Extreme Weather</h4><ul><li>Cyclone Narelle demonstrated severe cyclone risk for the Cape York region</li><li>Saltwater corrosion from coastal proximity accelerates degradation</li><li>Cyclone-rated mounting to AS/NZS 1170.2 Region C specified</li></ul></div>
+      <div class="p-card"><h4><span class="p-badge">E</span>Solar Resource</h4><ul><li>High solar irradiance (~5.5 kWh/m²/day) is an exceptional renewable resource</li><li>Feral pigs and wildlife require armoured pest-proof conduit protection</li><li>Corrosion-resistant materials essential for all external components</li></ul></div>
+      <div class="p-link">💡 <strong>Design impact:</strong> Environmental Resilience weighted 15%. IP65 sealed enclosures, cold storage upgraded to dedicated 15 kWh sub-array after prototype testing.</div>
+    </div>
+    <div id="pp-L" class="ppanel">
+      <div class="p-card"><h4><span class="p-badge">L</span>Land Rights</h4><ul><li>Native Title Act 1993 and ILUA compliance are non-negotiable prerequisites</li><li>Free, Prior and Informed Consent must be documented before construction</li><li>Community governance structures respected throughout the project lifecycle</li></ul></div>
+      <div class="p-card"><h4><span class="p-badge">L</span>Electrical Standards</h4><ul><li>AS/NZS 4777.1 — grid connection of energy systems via inverters</li><li>AS/NZS 5139 — installation of battery energy storage systems</li><li>NMI wiring rules and battery safety codes apply throughout</li></ul></div>
+      <div class="p-link">💡 <strong>Design impact:</strong> Regulatory Ease weighted 10% as a baseline. Legal Compliance Test — FPIC check plus standards verification — is a mandatory pass/fail gate before installation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACK DIVIDER 2 -->
+<div class="track-div" style="background:var(--forest);padding:16px 0">
+  <svg viewBox="0 0 1200 32" xmlns="http://www.w3.org/2000/svg">
+    <g fill="rgba(196,154,34,.35)"><circle cx="100" cy="16" r="2.5"/><circle cx="116" cy="10" r="2"/><circle cx="132" cy="16" r="2.5"/><circle cx="148" cy="10" r="2"/><circle cx="164" cy="16" r="2.5"/><circle cx="180" cy="10" r="2"/></g>
+    <g fill="rgba(196,154,34,.25)"><circle cx="380" cy="16" r="2"/><circle cx="400" cy="16" r="2"/><circle cx="420" cy="16" r="2"/><circle cx="440" cy="16" r="2"/><circle cx="460" cy="16" r="2"/><circle cx="480" cy="16" r="2"/><circle cx="500" cy="16" r="2"/><circle cx="520" cy="16" r="2"/><circle cx="540" cy="16" r="2"/><circle cx="560" cy="16" r="2"/><circle cx="580" cy="16" r="2"/><circle cx="600" cy="16" r="4" fill="rgba(196,154,34,.6)"/><circle cx="620" cy="16" r="2"/><circle cx="640" cy="16" r="2"/><circle cx="660" cy="16" r="2"/><circle cx="680" cy="16" r="2"/><circle cx="700" cy="16" r="2"/><circle cx="720" cy="16" r="2"/><circle cx="740" cy="16" r="2"/><circle cx="760" cy="16" r="2"/><circle cx="780" cy="16" r="2"/><circle cx="800" cy="16" r="2"/><circle cx="820" cy="16" r="2"/></g>
+    <g fill="rgba(196,154,34,.35)"><circle cx="1020" cy="16" r="2.5"/><circle cx="1036" cy="10" r="2"/><circle cx="1052" cy="16" r="2.5"/><circle cx="1068" cy="10" r="2"/><circle cx="1084" cy="16" r="2.5"/><circle cx="1100" cy="10" r="2"/></g>
+  </svg>
+</div>
+
+<!-- USER JOURNEY -->
+<section class="journey-sec" id="journey">
+  <div class="wrap">
+    <div class="eyebrow">03 — Empathise</div>
+    <h2 class="sec-h">A Day Without Reliable Energy</h2>
+    <p class="sec-lead">Persona: Mary, 45 — Lama Lama community member, mother of three. Click each time of day to explore the cascading harm of diesel dependency.</p>
+    <div class="j-wrap rev">
+      <div class="j-nav">
+        <button class="j-btn active" onclick="showJ(0,this)"><div><span class="j-time">6:00 AM</span><span class="j-label">Morning</span></div><span class="j-dot"></span></button>
+        <button class="j-btn" onclick="showJ(1,this)"><div><span class="j-time">12:00 PM</span><span class="j-label">Midday</span></div><span class="j-dot"></span></button>
+        <button class="j-btn" onclick="showJ(2,this)"><div><span class="j-time">3:00 PM</span><span class="j-label">Afternoon</span></div><span class="j-dot"></span></button>
+        <button class="j-btn" onclick="showJ(3,this)"><div><span class="j-time">7:00 PM</span><span class="j-label">Evening</span></div><span class="j-dot"></span></button>
+        <button class="j-btn" onclick="showJ(4,this)"><div><span class="j-time">10:00 PM</span><span class="j-label">Night</span></div><span class="j-dot"></span></button>
+      </div>
+      <div class="j-content">
+        <div class="j-panel active" id="j0"><span class="j-tag e1">😤 Frustrated</span><h3>Generator off — no lighting</h3><p class="j-action">Mary wakes before sunrise. The generator has been off all night to save fuel.</p><div class="j-pain"><div class="j-pain-lbl">⚠ Pain Point</div><p>Children navigate the house in the dark — a trip hazard. They arrive late for school. The morning becomes a stressful scramble with no hot water and no light.</p></div><div class="j-sol"><div class="j-sol-lbl">☀ With the Microgrid</div><p>24/7 solar and battery power means lights, fans, and appliances work from the moment anyone wakes. No generator noise. No darkness. No late starts.</p></div></div>
+        <div class="j-panel" id="j1"><span class="j-tag e2">😰 Stressed</span><h3>Generator runs 4 hours — fridge on briefly</h3><p class="j-action">The generator is switched on for a limited midday window to run the refrigerator.</p><div class="j-pain"><div class="j-pain-lbl">⚠ Pain Point</div><p>Food spoilage is a constant risk. Fuel costs $8–12 per day. Every hour of generator use is a calculated financial decision the family can barely afford.</p></div><div class="j-sol"><div class="j-sol-lbl">☀ With the Microgrid</div><p>Cold storage gets a dedicated 15 kWh sub-array. The refrigerator runs continuously. Food security is no longer contingent on fuel cost or availability.</p></div></div>
+        <div class="j-panel" id="j2"><span class="j-tag e3">😔 Helpless</span><h3>Kids do homework — power unreliable</h3><p class="j-action">School finishes. Children come home to do their afternoon homework.</p><div class="j-pain"><div class="j-pain-lbl">⚠ Pain Point</div><p>No WiFi. Devices cannot be charged reliably. Educational content requiring internet access is simply unavailable. Children fall behind peers in grid-connected areas.</p></div><div class="j-sol"><div class="j-sol-lbl">☀ With the Microgrid</div><p>The school node includes dedicated WiFi access. Afternoon solar generation is at its peak — ample power for devices, internet, and study every day.</p></div></div>
+        <div class="j-panel" id="j3"><span class="j-tag e4">😟 Anxious</span><h3>Dinner by candlelight — generator off</h3><p class="j-action">The generator has been shut down for the evening to preserve fuel for morning.</p><div class="j-pain"><div class="j-pain-lbl">⚠ Pain Point</div><p>Medical devices including CPAP machines for sleep apnoea will not run. For community members who depend on these devices, every night without power is a genuine health risk.</p></div><div class="j-sol"><div class="j-sol-lbl">☀ With the Microgrid</div><p>The 120 kWh battery bank provides 48 hours of autonomy. Medical devices run all night. The clinic is always-on — health is never compromised by energy availability.</p></div></div>
+        <div class="j-panel" id="j4"><span class="j-tag e5">😩 Exhausted</span><h3>No fan — heat remains all night</h3><p class="j-action">Generator noise has stopped, but tropical heat does not relent overnight.</p><div class="j-pain"><div class="j-pain-lbl">⚠ Pain Point</div><p>Without fans or air circulation, nighttime temperatures make sleep difficult and contribute to ongoing health problems. Poor sleep compounds every other challenge the next day.</p></div><div class="j-sol"><div class="j-sol-lbl">☀ With the Microgrid</div><p>Battery discharge powers fans throughout the night. No generator noise. Cooler, quieter, healthier sleep. The system silently recharges from solar from dawn onwards.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DECISION MATRIX -->
+<section class="matrix-sec" id="matrix">
+  <div class="wrap">
+    <div class="eyebrow">04 — Ideate &amp; Screen</div>
+    <h2 class="sec-h">Decision Matrix</h2>
+    <p class="sec-lead">Seven concepts scored across six PESTEL-derived weighted criteria. Option F★ — the shared community microgrid — scored 4.5/5, the clear winner.</p>
+    <div class="mx-wrap rev">
+      <table class="mx">
+        <thead>
+          <tr><th>Criterion (Weight)</th><th>A. Diesel</th><th>B. Solar Only</th><th>C. Solar+Bat</th><th>D. Solar+Bat+Diesel</th><th>E. Wind-Solar</th><th>F. Community Grid <span class="win-badge">★ Winner</span></th><th>G. Household Kits</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reliability (25%)</td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s5">5</span></td><td><span class="sc s3">3</span></td><td><span class="sc s5">5</span></td><td><span class="sc s2">2</span></td></tr>
+          <tr><td>Affordability (20%)</td><td><span class="sc s2">2</span></td><td><span class="sc s3">3</span></td><td><span class="sc s4">4</span></td><td><span class="sc s3">3</span></td><td><span class="sc s2">2</span></td><td><span class="sc s4">4</span></td><td><span class="sc s4">4</span></td></tr>
+          <tr><td>Maintainability (20%)</td><td><span class="sc s2">2</span></td><td><span class="sc s3">3</span></td><td><span class="sc s4">4</span></td><td><span class="sc s4">4</span></td><td><span class="sc s2">2</span></td><td><span class="sc s5">5</span></td><td><span class="sc s3">3</span></td></tr>
+          <tr><td>Env. Resilience (15%)</td><td><span class="sc s2">2</span></td><td><span class="sc s4">4</span></td><td><span class="sc s4">4</span></td><td><span class="sc s4">4</span></td><td><span class="sc s3">3</span></td><td><span class="sc s4">4</span></td><td><span class="sc s3">3</span></td></tr>
+          <tr><td>Community Ownership (10%)</td><td><span class="sc s1">1</span></td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s5">5</span></td><td><span class="sc s4">4</span></td></tr>
+          <tr><td>Regulatory Ease (10%)</td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td><td><span class="sc s2">2</span></td><td><span class="sc s3">3</span></td><td><span class="sc s3">3</span></td></tr>
+          <tr class="mx-total"><td>Weighted Total</td><td>2.2</td><td>3.1</td><td>3.5</td><td>3.8</td><td>2.5</td><td><strong>4.5 ★</strong></td><td>3.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution-sec" id="solution">
+  <div class="wrap">
+    <div class="eyebrow eyebrow-light">05 — Design Solution</div>
+    <h2 class="sec-h sec-h-white">The Design</h2>
+    <p class="sec-lead sec-lead-dim">Option F★ — Shared Community Solar-Battery-Diesel Hybrid Microgrid. Click any component for detailed specifications.</p>
+    <div class="sol-grid">
+      <div class="rev-l">
+        <div class="diag-row">
+          <div class="diag-node n-solar" onclick="showNode('solar',this)"><h4>☀ Solar PV Array</h4><small>40 kWp · 160–200 kWh/day</small></div>
+          <div class="diag-node n-diesel" onclick="showNode('diesel',this)"><h4>⛽ Diesel Gen</h4><small>Backup · Auto &lt;20% SoC</small></div>
+        </div>
+        <div class="diag-arr">↓ ↕</div>
+        <div class="diag-row">
+          <div class="diag-node n-inv" style="min-width:260px" onclick="showNode('inverter',this)"><h4>⚡ Hybrid Inverter &amp; Charge Controller</h4><small>AC-coupled · Modular · Satellite monitoring</small></div>
+        </div>
+        <div class="diag-arr">↕</div>
+        <div class="diag-row">
+          <div class="diag-node n-batt" onclick="showNode('battery',this)"><h4>🔋 LiFePO₄ Battery Bank</h4><small>120 kWh · 48 hr @ 50% DoD</small></div>
+        </div>
+        <div class="diag-arr">↓</div>
+        <div class="loads-row">
+          <span class="load-chip" onclick="showNode('homes',this)">🏠 Homes ~20kWh</span>
+          <span class="load-chip" onclick="showNode('clinic',this)">🏥 Clinic (Priority)</span>
+          <span class="load-chip" onclick="showNode('school',this)">🏫 School + WiFi</span>
+          <span class="load-chip" onclick="showNode('cold',this)">❄ Cold Storage 15kWh</span>
+          <span class="load-chip" onclick="showNode('workshop',this)">🔧 Workshop</span>
+        </div>
+        <div class="node-info" id="node-info"><h4>Click any component</h4><p>Select a component or load node to see design specifications and rationale.</p></div>
+      </div>
+      <div class="feat-list rev-r">
+        <div class="feat" onclick="showNode('solar',this)"><h4>Modular by Design</h4><p>Panels and batteries added in stages as budget and grants allow. Start with Stage 1 (20 kWp + 60 kWh), expand to full system as grant tranches are confirmed.</p></div>
+        <div class="feat"><h4>Tropics-Ready</h4><p>IP65+ enclosures, continuous gasket channel, 50°C wall tolerance. Cyclone-rated mounting to AS/NZS 1170.2 Region C. Armoured pest-proof conduits throughout.</p></div>
+        <div class="feat"><h4>Community-Operated</h4><p>Elders involved at every stage. Front panel labelled in Lamalama language. Slide-out battery modules require no tools. 3-day training program for local technicians.</p></div>
+        <div class="feat"><h4>Always-On Clinic</h4><p>Health clinic is a priority load — never shed regardless of battery state. Medical devices, medication refrigeration, and emergency lighting guaranteed 24/7.</p></div>
+        <div class="feat"><h4>Smart Metering</h4><p>Satellite-connected energy dashboard gives the community real-time visibility of generation, storage and consumption in plain language, co-designed with elders.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BATTERY SIMULATOR -->
+<section class="sim-sec" id="simulator">
+  <div class="wrap">
+    <div class="eyebrow eyebrow-light">06 — Prototype · Auto Failover</div>
+    <div class="sim-grid">
+      <div class="sim-l">
+        <h2>Live Battery<br>Failover Simulator</h2>
+        <p>Drag the slider to simulate different battery charge levels and see the auto-failover sequence respond in real time. This logic was validated via an Arduino circuit on Tinkercad.</p>
+        <div class="sim-lbl">Battery State of Charge</div>
+        <div class="sim-pct" id="sim-pct">75%</div>
+        <div class="sim-status" id="sim-status">Solar charging · All loads active</div>
+        <input type="range" class="batt-slider" id="batt-slider" min="0" max="100" value="75" oninput="updateSim(this.value)">
+        <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:rgba(255,255,255,.3);margin-top:4px"><span>0%</span><span>20%</span><span>60%</span><span>100%</span></div>
+      </div>
+      <div class="sim-nodes">
+        <div class="sim-node priority" id="sn-clinic"><span class="sim-name"><span class="led led-p" id="led-clinic"></span>🏥 Clinic</span><span class="sim-st pri" id="st-clinic">Always ON — Priority</span></div>
+        <div class="sim-node on" id="sn-homes"><span class="sim-name"><span class="led led-on" id="led-homes"></span>🏠 Homes</span><span class="sim-st act" id="st-homes">Powered</span></div>
+        <div class="sim-node on" id="sn-school"><span class="sim-name"><span class="led led-on" id="led-school"></span>🏫 School</span><span class="sim-st act" id="st-school">Powered + WiFi</span></div>
+        <div class="sim-node on" id="sn-cold"><span class="sim-name"><span class="led led-on" id="led-cold"></span>❄ Cold Storage</span><span class="sim-st act" id="st-cold">Dedicated sub-array</span></div>
+        <div class="sim-node on" id="sn-workshop"><span class="sim-name"><span class="led led-on" id="led-workshop"></span>🔧 Workshop</span><span class="sim-st act" id="st-workshop">Powered</span></div>
+        <div class="diesel-st d-off" id="diesel-st">⛽ Diesel Generator — STANDBY (OFF)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LINE CHART -->
+<section class="chart-sec abn-dots-light" id="costs-chart">
+  <div class="wrap">
+    <div class="eyebrow">07 — Costs</div>
+    <h2 class="sec-h">5-Year Cost Comparison</h2>
+    <p class="sec-lead">Diesel costs rise year-on-year. Microgrid O&amp;M declines. Hover any year for exact figures. Use the toggles to change the view.</p>
+    <div class="chart-card rev">
+      <div class="chart-hdr">
+        <span class="chart-hdr-title">Annual Energy Cost — Diesel vs Microgrid O&amp;M</span>
+        <div class="chart-legend">
+          <span class="leg-item"><span class="leg-dot" style="background:#7B3A10"></span>Diesel Only</span>
+          <span class="leg-item"><span class="leg-dot" style="background:#2D6A4F"></span>Microgrid O&amp;M</span>
+          <span class="leg-item"><span class="leg-dot" style="background:var(--gold);width:18px;height:3px;border-radius:0"></span>Saving trend</span>
+        </div>
+      </div>
+      <svg id="linechart" viewBox="0 0 760 280" style="width:100%;overflow:visible" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="dGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7B3A10" stop-opacity=".18"/><stop offset="100%" stop-color="#7B3A10" stop-opacity=".02"/></linearGradient>
+          <linearGradient id="mGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2D6A4F" stop-opacity=".18"/><stop offset="100%" stop-color="#2D6A4F" stop-opacity=".02"/></linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g stroke="#E4ECE6" stroke-width="1"><line x1="60" y1="20" x2="720" y2="20"/><line x1="60" y1="70" x2="720" y2="70"/><line x1="60" y1="120" x2="720" y2="120"/><line x1="60" y1="170" x2="720" y2="170"/><line x1="60" y1="220" x2="720" y2="220"/></g>
+        <g font-family="JetBrains Mono,monospace" font-size="11" fill="#999" text-anchor="end"><text x="52" y="24">$70K</text><text x="52" y="74">$56K</text><text x="52" y="124">$42K</text><text x="52" y="174">$28K</text><text x="52" y="224">$14K</text></g>
+        <g font-family="JetBrains Mono,monospace" font-size="11" fill="#999" text-anchor="middle"><text x="160" y="250">Year 1</text><text x="290" y="250">Year 2</text><text x="420" y="250">Year 3</text><text x="550" y="250">Year 4</text><text x="680" y="250">Year 5</text></g>
+        <path id="sav-area" d="" fill="rgba(196,154,34,0.08)" stroke="none"/>
+        <path id="d-area" d="" fill="url(#dGrad)" stroke="none"/>
+        <path id="m-area" d="" fill="url(#mGrad)" stroke="none"/>
+        <path id="d-line" d="" fill="none" stroke="#7B3A10" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" stroke-dasharray="700" stroke-dashoffset="700"/>
+        <path id="m-line" d="" fill="none" stroke="#2D6A4F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" stroke-dasharray="700" stroke-dashoffset="700"/>
+        <path id="sav-line" d="" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="5,3" opacity="0"/>
+        <g id="d-dots"></g><g id="m-dots"></g>
+        <line id="h-line" x1="0" y1="20" x2="0" y2="225" stroke="rgba(196,154,34,.4)" stroke-width="1.5" stroke-dasharray="4,3" opacity="0"/>
+        <g id="hover-zones"></g>
+        <g id="tt" opacity="0"><rect id="tt-bg" rx="6" fill="#1A1A18" stroke="rgba(196,154,34,.4)" stroke-width="1"/><text id="tt-yr" font-family="JetBrains Mono,monospace" font-size="10" fill="rgba(255,255,255,.5)"/><text id="tt-d" font-family="JetBrains Mono,monospace" font-size="11" fill="#E8956D"/><text id="tt-m" font-family="JetBrains Mono,monospace" font-size="11" fill="#74C69D"/><text id="tt-s" font-family="JetBrains Mono,monospace" font-size="11" fill="#E9C46A"/></g>
+      </svg>
+      <div class="chart-toggles">
+        <button class="ctog active" onclick="setChartView('both',this)">Both Lines</button>
+        <button class="ctog" onclick="setChartView('diesel',this)">Diesel Only</button>
+        <button class="ctog" onclick="setChartView('micro',this)">Microgrid Only</button>
+        <button class="ctog" onclick="setChartView('saving',this)">Savings View</button>
+      </div>
+      <div class="savings-row">
+        <div class="sav-item"><div class="sav-lbl">Year 1 Saving</div><div class="sav-val" style="color:var(--bark)">$23K</div></div>
+        <div class="sav-item"><div class="sav-lbl">Year 3 Saving</div><div class="sav-val" style="color:var(--forest2)">$39K</div></div>
+        <div class="sav-item"><div class="sav-lbl">Year 5 Saving</div><div class="sav-val" style="color:var(--forest)">$47K</div></div>
+        <div class="sav-item" style="background:var(--forest);border-radius:10px;padding:12px"><div class="sav-lbl" style="color:rgba(255,255,255,.45)">5-Year Total</div><div class="sav-val" style="color:var(--gold2)">~$157K</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3D MODEL -->
+<section class="model-sec abn-dots" id="model">
+  <div class="wrap">
+    <div class="eyebrow eyebrow-light">08 — Prototype · 3D Node</div>
+    <h2 class="sec-h sec-h-white">The Microgrid Node</h2>
+    <p class="sec-lead sec-lead-dim">The physical enclosure from the presentation — pole-mounted, IP65-rated, cyclone-proof. Drag to rotate. Click components to inspect.</p>
+    <div class="model-grid">
+      <div class="rev-l" style="display:flex;flex-direction:column;align-items:center">
+        <canvas id="model-canvas" width="420" height="460" style="border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);display:block"></canvas>
+        <div class="model-btns">
+          <button class="mbtn active" onclick="setModelView('iso',this)">Isometric</button>
+          <button class="mbtn" onclick="setModelView('front',this)">Front</button>
+          <button class="mbtn" onclick="setModelView('side',this)">Side</button>
+          <button class="mbtn" onclick="setModelView('explode',this)">Exploded</button>
+        </div>
+        <div class="model-legend">
+          <div class="mleg"><span class="mleg-dot" style="background:#2D6A4F"></span>IP65 sealed enclosure body</div>
+          <div class="mleg"><span class="mleg-dot" style="background:#C49A22"></span>Failover switch panel (Solar/Battery/Diesel)</div>
+          <div class="mleg"><span class="mleg-dot" style="background:#5C3D1E"></span>LiFePO₄ battery cabinet (slide-out)</div>
+          <div class="mleg"><span class="mleg-dot" style="background:#1B4332"></span>Cyclone-rated gusset bracket mount</div>
+          <div class="mleg"><span class="mleg-dot" style="background:#8B2500"></span>Pest-proof compression gland port</div>
+        </div>
+      </div>
+      <div class="rev-r">
+        <div class="model-info" id="model-info"><h4>Interactive 3D Node</h4><p>Click any component on the model — or use the feature cards below — to read its full design specification.</p></div>
+        <div class="feat-list" style="margin-top:16px">
+          <div class="feat" onclick="highlightPart('enclosure')"><h4>IP65 Sealed Enclosure</h4><p>3mm+ wall thickness, continuous gasket channel, rated to 50°C. Prevents dust, moisture, and tropical wildlife ingress from damaging circuitry.</p></div>
+          <div class="feat" onclick="highlightPart('switch')"><h4>3-Stage Failover Switch</h4><p>Solar → Battery → Diesel priority with LED status indicators per source. Co-designed in Lamalama language. Replaceable in under 60 seconds.</p></div>
+          <div class="feat" onclick="highlightPart('battery')"><h4>Battery Cabinet</h4><p>Slide-out LiFePO₄ module — no tools required. A trained community technician can swap it in the field during wet season without specialist assistance.</p></div>
+          <div class="feat" onclick="highlightPart('mount')"><h4>Cyclone-Rated Pole Mount</h4><p>15° gusset brackets with M8 bolt pattern meeting AS/NZS 1170.2 Region C cyclone uplift resistance. Elevated above flood and feral animal reach.</p></div>
+          <div class="feat" onclick="highlightPart('gland')"><h4>Compression Gland Port</h4><p>Pest-proof armoured cable entry. Prevents feral pigs and rodents tracking along conduits into the enclosure — a documented tropical remote failure mode.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLAR DAY SIM -->
+<section class="solar-sec" id="solar-sim">
+  <div class="wrap">
+    <div class="eyebrow">09 — Interactive · Solar Generation</div>
+    <h2 class="sec-h">A Day of Solar Generation</h2>
+    <p class="sec-lead">Cape York receives ~5.5 kWh/m²/day. Drag the time slider to see how generation, battery state, and load change across a typical day at Port Stewart.</p>
+    <div class="solar-card rev">
+      <div class="sky" id="sky">
+        <div class="sun-glow" id="sun-glow"></div>
+        <div class="sun" id="sun"></div>
+        <div class="horizon" id="horizon"></div>
+        <!-- Aboriginal dot art overlay -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.12" viewBox="0 0 800 150" xmlns="http://www.w3.org/2000/svg">
+          <g fill="#C2611F"><circle cx="40" cy="18" r="2"/><circle cx="56" cy="26" r="1.5"/><circle cx="72" cy="18" r="2"/><circle cx="88" cy="26" r="1.5"/><circle cx="104" cy="18" r="2"/><circle cx="690" cy="18" r="2"/><circle cx="706" cy="26" r="1.5"/><circle cx="722" cy="18" r="2"/><circle cx="738" cy="26" r="1.5"/><circle cx="754" cy="18" r="2"/></g>
+          <g fill="#E8892A" opacity="0.7"><circle cx="30" cy="132" r="2.5"/><circle cx="46" cy="126" r="2"/><circle cx="62" cy="132" r="2.5"/><circle cx="78" cy="126" r="2"/><circle cx="700" cy="132" r="2.5"/><circle cx="716" cy="126" r="2"/><circle cx="732" cy="132" r="2.5"/><circle cx="748" cy="126" r="2"/></g>
+        </svg>
+      </div>
+      <div class="solar-stats" id="solar-stats">
+        <div class="ss" id="ss-gen"><div class="ss-val" id="sv-gen">0.0</div><div class="ss-lbl">kW generating</div></div>
+        <div class="ss" id="ss-bat"><div class="ss-val" id="sv-bat">85</div><div class="ss-lbl">% battery SoC</div></div>
+        <div class="ss" id="ss-load"><div class="ss-val" id="sv-load">1.9</div><div class="ss-lbl">kW load demand</div></div>
+        <div class="ss" id="ss-src"><div class="ss-val" id="sv-src" style="font-size:1.1rem;margin-top:4px">Battery</div><div class="ss-lbl">power source</div></div>
+      </div>
+      <canvas id="arc-canvas" height="110" style="width:100%;display:block"></canvas>
+      <div class="time-row">
+        <label>Time of day</label>
+        <input type="range" class="tslider" id="t-slider" min="0" max="23" value="12" step="1" oninput="updateSolar(this.value)">
+        <span class="time-disp" id="t-disp">12:00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#aaa;margin-top:4px;padding:0 2px"><span>12AM</span><span>3AM</span><span>6AM</span><span>9AM</span><span>12PM</span><span>3PM</span><span>6PM</span><span>9PM</span><span>11PM</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SONGLINES -->
+<section class="songlines-sec" id="songlines">
+  <div class="wrap" style="position:relative;z-index:1">
+    <div class="eyebrow eyebrow-ochre">Country · Culture · Connection</div>
+    <h2 class="sec-h sec-h-white">Songlines and Energy Lines</h2>
+    <p class="sec-lead sec-lead-dim" style="max-width:680px">In Aboriginal tradition, songlines are paths that connect Country, community and spirit. Our microgrid follows the same principle — energy pathways connecting the community, honouring Country, flowing from the land itself. Hover the cards to explore.</p>
+    <div class="sl-grid">
+      <div class="rev-l">
+        <canvas id="sl-canvas" style="border-radius:14px;border:1px solid rgba(194,97,31,.3);display:block;width:100%" height="400"></canvas>
+      </div>
+      <div class="sl-cards rev-r">
+        <div class="sl-card" id="slc0" onmouseenter="hlSongline(0)" onmouseleave="clrSongline()"><h4>⊙ Waterhole — The Solar Array</h4><p>In dot-art tradition, concentric circles represent a waterhole — life-giving, central, communal. The 40 kWp solar array is the community's waterhole: the source from which all energy flows.</p></div>
+        <div class="sl-card" id="slc1" onmouseenter="hlSongline(1)" onmouseleave="clrSongline()"><h4>◎ Meeting Place — The Battery Bank</h4><p>The 120 kWh LiFePO₄ battery bank is the energy meeting place — where generation and consumption meet, and the community's resilience is stored between sun and night.</p></div>
+        <div class="sl-card" id="slc2" onmouseenter="hlSongline(2)" onmouseleave="clrSongline()"><h4>⌒ U-Shape — Community Dwellings</h4><p>The U-shape in Aboriginal art represents a person seated at Country. Five load nodes — homes, clinic, school, cold storage, workshop — surround the shared energy source.</p></div>
+        <div class="sl-card" id="slc3" onmouseenter="hlSongline(3)" onmouseleave="clrSongline()"><h4>⋯ Tracks — The Power Lines</h4><p>Paired dots represent animal tracks and travel paths. Our armoured conduits follow the same principle — pathways carrying energy safely across Country to every dwelling.</p></div>
+        <div class="sl-card" id="slc4" onmouseenter="hlSongline(4)" onmouseleave="clrSongline()"><h4>◉ Sacred Site — The Clinic</h4><p>Some circles mark sacred, protected sites. The health clinic is our sacred site — always powered, never shed, protected regardless of battery state.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COSTS -->
+<section class="costs-sec abn-dots-light" id="costs">
+  <div class="wrap">
+    <div class="eyebrow">10 — Costs</div>
+    <h2 class="sec-h">Capital Cost Breakdown</h2>
+    <p class="sec-lead">Total gross capital ~$316K, reduced to ~$158K net through an estimated 50% ARENA grant offset. O&amp;M funded through four sources from Year 1.</p>
+    <div class="costs-grid">
+      <div>
+        <div class="cost-card rev">
+          <div class="cost-hdr">Capital Cost Breakdown</div>
+          <table class="ct">
+            <tr><td>Solar PV Array (40 kWp)</td><td>$72,000</td></tr>
+            <tr><td>LiFePO₄ Battery (120 kWh)</td><td>$96,000</td></tr>
+            <tr><td>Hybrid Inverter &amp; Controls</td><td>$28,000</td></tr>
+            <tr><td>Diesel Backup Generator</td><td>$22,000</td></tr>
+            <tr><td>Civil &amp; Electrical Installation</td><td>$45,000</td></tr>
+            <tr><td>Training &amp; Commissioning</td><td>$12,000</td></tr>
+            <tr><td>Contingency (15%)</td><td>$41,250</td></tr>
+            <tr class="ct-tot"><td><strong>Total Gross Cost</strong></td><td>~$316,250</td></tr>
+            <tr class="ct-grant"><td>ARENA Grant (est. 50%)</td><td>−$158,000</td></tr>
+            <tr class="ct-net"><td><strong>Net Community Cost</strong></td><td>~$158,250</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="cost-card rev d1" style="margin-bottom:16px">
+          <div class="cost-hdr">O&amp;M Funding Sources</div>
+          <div style="padding:20px 24px">
+            <div class="funding-list">
+              <div class="fund-item"><span class="fund-dot" style="background:var(--gold)"></span>Community energy co-op tariff (~$8/week per household)</div>
+              <div class="fund-item"><span class="fund-dot" style="background:var(--forest)"></span>QLD DRDMW remote community support program</div>
+              <div class="fund-item"><span class="fund-dot" style="background:var(--forest2)"></span>Savings from eliminated diesel (~$37K/year by Year 3)</div>
+              <div class="fund-item"><span class="fund-dot" style="background:var(--bark)"></span>ARENA performance-based continuation grants</div>
+            </div>
+          </div>
+        </div>
+        <div class="savings-hero rev d2">
+          <div class="savings-hero-lbl">Annual saving from Year 3</div>
+          <div class="savings-hero-val">~$37,000</div>
+          <div class="savings-hero-sub">O&amp;M costs fall below diesel running costs from Year 2 and continue declining as local technician expertise grows and the system matures.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RISKS -->
+<section class="risks-sec" id="risks">
+  <div class="wrap">
+    <div class="eyebrow">11 — Risks &amp; Mitigation</div>
+    <h2 class="sec-h">Risks and Challenges</h2>
+    <p class="sec-lead">Click each risk to expand the full analysis. These risks are mitigated and managed — not eliminated. Ongoing community training and monitoring are essential.</p>
+    <div class="risk-acc rev">
+      <div class="risk-item" onclick="toggleRisk(this)">
+        <div class="risk-hdr"><div class="risk-hdr-l"><span class="rbadge rb-hi">High</span><span class="risk-title">High Upfront Capital Cost</span></div><div class="risk-chev">▼</div></div>
+        <div class="risk-body"><div class="risk-inner"><div class="rbox r-risk"><h5>Risk</h5><p>Solar and battery systems require ~$316K gross capital. Without external funding this is not viable for a remote community with limited financial resources.</p></div><div class="rbox r-mit"><h5>Mitigation</h5><p>ARENA and QLD grants estimated to offset 50%, bringing net community cost to ~$158K. Staged modular rollout spreads capital requirements. Community co-op model funds long-term O&amp;M sustainably.</p></div></div></div>
+      </div>
+      <div class="risk-item" onclick="toggleRisk(this)">
+        <div class="risk-hdr"><div class="risk-hdr-l"><span class="rbadge rb-hi">High</span><span class="risk-title">Wet Season Road Access</span></div><div class="risk-chev">▼</div></div>
+        <div class="risk-body"><div class="risk-inner"><div class="rbox r-risk"><h5>Risk</h5><p>Port Stewart roads become inaccessible for months during the wet season. Any fault requiring specialist labour could leave the community without power for an extended period.</p></div><div class="rbox r-mit"><h5>Mitigation</h5><p>2–3 trained local technicians permanently on-site. Critical spare parts stocked locally. Modular slide-out components require no specialists and no tools to replace.</p></div></div></div>
+      </div>
+      <div class="risk-item" onclick="toggleRisk(this)">
+        <div class="risk-hdr"><div class="risk-hdr-l"><span class="rbadge rb-hi">High</span><span class="risk-title">Extreme Tropical Conditions</span></div><div class="risk-chev">▼</div></div>
+        <div class="risk-body"><div class="risk-inner"><div class="rbox r-risk"><h5>Risk</h5><p>Cyclones (cf. Cyclone Narelle), humidity above 80%, saltwater corrosion, and feral pig damage to conduits and cabling are all real ongoing threats to system integrity.</p></div><div class="rbox r-mit"><h5>Mitigation</h5><p>IP65+ enclosures with continuous gasket channel. Cyclone-rated mounting to AS/NZS 1170.2 Region C. Armoured pest-proof conduits. Corrosion-resistant materials throughout.</p></div></div></div>
+      </div>
+      <div class="risk-item" onclick="toggleRisk(this)">
+        <div class="risk-hdr"><div class="risk-hdr-l"><span class="rbadge rb-med">Medium</span><span class="risk-title">Lithium Battery Fire Risk</span></div><div class="risk-chev">▼</div></div>
+        <div class="risk-body"><div class="risk-inner"><div class="rbox r-risk"><h5>Risk</h5><p>Lithium batteries carry a low but non-zero fire risk, particularly if physically damaged, incorrectly installed, or subject to thermal runaway in extreme heat conditions.</p></div><div class="rbox r-mit"><h5>Mitigation</h5><p>LiFePO₄ chemistry selected specifically for its thermal stability vs NMC. Battery enclosure rated to AS/NZS 5139. BMS with thermal cutoff. Enclosure sited away from all dwellings.</p></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPLEMENTATION -->
+<section class="impl-sec abn-dots-light" id="impl">
+  <div class="wrap">
+    <div class="eyebrow">12 — Implementation Plan</div>
+    <h2 class="sec-h">Path to Implementation</h2>
+    <p class="sec-lead">A phased rollout from preliminary design to operational microgrid — staged to match grant funding availability and community readiness.</p>
+    <div class="gantt-card rev">
+      <div style="font-family:'Cormorant Garamond',serif;color:var(--forest);font-size:1.1rem;font-weight:700;margin-bottom:20px">Phased Timeline (12 months + Year 2)</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:560px">
+          <thead>
+            <tr style="background:var(--forest)">
+              <th style="color:white;padding:11px 14px;font-size:.72rem;text-align:left;min-width:200px">Phase</th>
+              <th style="color:rgba(255,255,255,.7);padding:11px 8px;font-size:.66rem;text-align:center">Months 1–3</th>
+              <th style="color:rgba(255,255,255,.7);padding:11px 8px;font-size:.66rem;text-align:center">Months 4–6</th>
+              <th style="color:rgba(255,255,255,.7);padding:11px 8px;font-size:.66rem;text-align:center">Months 7–9</th>
+              <th style="color:rgba(255,255,255,.7);padding:11px 8px;font-size:.66rem;text-align:center">Months 10–12</th>
+              <th style="color:rgba(255,255,255,.7);padding:11px 8px;font-size:.66rem;text-align:center">Year 2</th>
+            </tr>
+          </thead>
+          <tbody id="gantt-body"></tbody>
+        </table>
+      </div>
+      <div class="gantt-legend">
+        <span style="display:flex;align-items:center;gap:7px;font-size:.74rem;color:#777"><span style="width:14px;height:9px;border-radius:3px;background:var(--gold);display:inline-block"></span>Active phase</span>
+        <span style="display:flex;align-items:center;gap:7px;font-size:.74rem;color:#777"><span style="width:14px;height:9px;border-radius:3px;background:var(--forest2);display:inline-block"></span>In progress</span>
+        <span style="display:flex;align-items:center;gap:7px;font-size:.74rem;color:#777"><span style="width:14px;height:9px;border-radius:3px;background:var(--rust);display:inline-block"></span>Legal/compliance</span>
+      </div>
+    </div>
+    <div class="tl">
+      <div class="tl-item rev"><div class="tl-num tn1">1</div><div class="tl-body"><h4>Community Consultation &amp; FPIC <span class="phase-lbl">Months 1–3</span></h4><p>Hold yarning circles with Lama Lama elders and residents. Document Free, Prior and Informed Consent before any construction. Co-design the Lamalama-language energy dashboard and community energy co-op governance structure. This phase is non-negotiable and cannot be shortened.</p></div></div>
+      <div class="tl-item rev d1"><div class="tl-num tn2">2</div><div class="tl-body"><h4>Funding Applications &amp; Engineering Design <span class="phase-lbl">Months 3–6</span></h4><p>Submit concurrent applications to ARENA and QLD DRDMW. Engage a qualified electrical engineer to finalise system sizing, site layout, and AS/NZS 4777 and NMI wiring compliance documentation. Estimated 50% ARENA grant offset reduces net community cost to approximately $158,000.</p></div></div>
+      <div class="tl-item rev d2"><div class="tl-num tn3">3</div><div class="tl-body"><h4>Procurement &amp; Pre-Installation <span class="phase-lbl">Months 6–9</span></h4><p>Procure all components during dry season when road access to Port Stewart is reliable. Pre-assemble and test microgrid node enclosures and auto-failover sequence off-site. Stock critical spare parts on-site before installation begins. Train local technicians in parallel.</p></div></div>
+      <div class="tl-item rev d3"><div class="tl-num tn4">4</div><div class="tl-body"><h4>Staged Installation &amp; Year 2 Expansion <span class="phase-lbl">Months 9–12 and Year 2</span></h4><p>Install Stage 1 (20 kWp solar, 60 kWh battery) during dry season. Commission satellite dashboard. Stage 2 expansion to the full 40 kWp and 120 kWh system follows once Stage 1 is validated and next grant tranche confirmed in Year 2.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY INSIGHTS -->
+<section class="community-sec abn-dots" id="community">
+  <div class="wrap">
+    <div class="eyebrow eyebrow-light">13 — Community Partner Insights</div>
+    <h2 class="sec-h sec-h-white">The Lama Lama Community</h2>
+    <p class="sec-lead sec-lead-dim">Understanding the Lama Lama people's context, priorities and needs was foundational to every design decision.</p>
+    <div class="comm-cards">
+      <div class="comm-card rev d1">
+        <div class="comm-card-lbl" style="color:var(--gold2)">Who They Are</div>
+        <p>The Lama Lama people are the Traditional Owners of a large area of Cape York Peninsula in far-north Queensland. Approximately 250 people live at the outstation of Port Stewart — a remote coastal location accessible only by unsealed roads impassable in the wet season, or by light aircraft (Engineers Without Borders Australia, 2025).</p>
+      </div>
+      <div class="comm-card rev d2">
+        <div class="comm-card-lbl" style="color:var(--ochre2)">Their Priorities</div>
+        <p>Community self-determination is paramount. The Lama Lama people have maintained governance over their Country for thousands of years. Energy reliability directly supports health outcomes, educational participation, food security through cold storage, and the cultural practice of remaining on Country rather than relocating for services (University of Sydney, 2021).</p>
+      </div>
+      <div class="comm-card rev d3">
+        <div class="comm-card-lbl" style="color:#74C69D">Their Opportunities</div>
+        <p>Cape York's high solar irradiance (~5.5 kWh/m²/day) makes solar generation highly viable. ARENA and QLD Government programs are actively funding exactly this type of project. Community-owned renewable energy has demonstrated transformative outcomes for other Indigenous communities — reducing costs, creating local employment, and strengthening ties to Country (ARENA, 2023).</p>
+      </div>
+    </div>
+    <div class="principles-grid rev">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px">Design Principles We Committed To</div>
+        <div class="prin-list">
+          <div class="prin"><span class="prin-dot">✓</span><p><strong>Elders lead.</strong> No design decision finalised without elder consultation and documented consent.</p></div>
+          <div class="prin"><span class="prin-dot">✓</span><p><strong>Language matters.</strong> Control panel and dashboard co-designed in Lamalama language with community input.</p></div>
+          <div class="prin"><span class="prin-dot">✓</span><p><strong>Local ownership.</strong> Community energy co-op model gives Lama Lama people full governance and ownership.</p></div>
+          <div class="prin"><span class="prin-dot">✓</span><p><strong>Local skills.</strong> 2–3 community technicians trained — wet season closures make external contractors unviable long-term.</p></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px">Legal &amp; Cultural Compliance</div>
+        <div class="legal-list">
+          <div class="legal-box"><span class="legal-box-lbl">Native Title Act 1993</span><p>ILUA compliance required before any ground works. All construction on Lama Lama Country requires formal agreement with the community as Traditional Owners.</p></div>
+          <div class="legal-box"><span class="legal-box-lbl">FPIC Requirement</span><p>Free, Prior and Informed Consent documented and signed by community representatives before any construction commences.</p></div>
+          <div class="legal-box"><span class="legal-box-lbl">AS/NZS 4777.1 &amp; 5139</span><p>Full compliance with electrical standards for inverter systems and battery energy storage installations throughout.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCES -->
+<section class="refs-sec" id="refs">
+  <div class="wrap">
+    <div class="eyebrow">14 — References</div>
+    <h2 class="sec-h">Sources &amp; Evidence</h2>
+    <p class="sec-lead">All claims on this website are evidenced by peer-reviewed, government, and industry sources. APA 7th Edition formatting.</p>
+    <div class="ref-list">
+      <div class="ref-card rev d1"><div class="ref-num" style="color:var(--gold)">Reference 1</div><p>Australian Renewable Energy Agency. (2023). <em>Microgrids: Cheaper, cleaner, more reliable energy for remote communities.</em> ARENA. <a href="https://arena.gov.au/blog/microgrids-cheaper-cleaner-reliable-energy-for-remote-communities/" target="_blank">https://arena.gov.au/blog/microgrids-cheaper-cleaner-reliable-energy-for-remote-communities/</a></p><div class="ref-use">Used for: ARENA funding context, microgrid cost-reduction evidence, remote community energy data.</div></div>
+      <div class="ref-card rev d2"><div class="ref-num" style="color:var(--forest2)">Reference 2</div><p>Australian Renewable Energy Agency. (2025). <em>Off-grid projects.</em> ARENA. <a href="https://arena.gov.au/projects/?technology=off-grid" target="_blank">https://arena.gov.au/projects/?technology=off-grid</a></p><div class="ref-use">Used for: Verification of available ARENA off-grid funding programs and current project portfolio.</div></div>
+      <div class="ref-card rev d3"><div class="ref-num" style="color:var(--ochre)">Reference 3</div><p>Engineers Without Borders Australia. (2025). <em>Port Stewart, Lama Lama.</em> EWB Challenge. <a href="https://ewbchallenge.org/challenge/port-stewart-lama-lama/" target="_blank">https://ewbchallenge.org/challenge/port-stewart-lama-lama/</a></p><div class="ref-use">Used for: Primary community brief — population data, location, energy context, community priorities, and design challenge scope.</div></div>
+      <div class="ref-card rev"><div class="ref-num" style="color:var(--bark)">Reference 4</div><p>RenewEconomy. (2023). <em>Queensland spends $28m to get four remote communities off diesel for good.</em> RenewEconomy. <a href="https://reneweconomy.com.au/queensland-spends-28m-to-get-four-remote-communities-off-diesel-for-good/" target="_blank">https://reneweconomy.com.au/queensland-spends-28m-to-get-four-remote-communities-off-diesel-for-good/</a></p><div class="ref-use">Used for: QLD Government $28M commitment, diesel exit policy context, and 90%+ remote communities on diesel statistic.</div></div>
+      <div class="ref-card rev d1"><div class="ref-num" style="color:var(--forest)">Reference 5</div><p>SolarTech. (2025). <em>Solar battery lifespan &amp; degradation: Complete guide.</em> SolarTech Online. <a href="https://solartechonline.com/blog/solar-battery-lifespan-degradation-guid/" target="_blank">https://solartechonline.com/blog/solar-battery-lifespan-degradation-guid/</a></p><div class="ref-use">Used for: LiFePO₄ vs NMC battery chemistry comparison, thermal stability evidence, and tropical climate performance data.</div></div>
+      <div class="ref-card rev d2"><div class="ref-num" style="color:var(--forest3)">Reference 6</div><p>The University of Sydney. (2021). <em>Renewable energy and empowering Indigenous communities.</em> Sydney Environment Institute. <a href="https://www.sydney.edu.au/sydney-environment-institute/news-analysis/news/2021/12/16/renewable-energy-and-empowering-indigenous-communities.html" target="_blank">https://www.sydney.edu.au/sydney-environment-institute/news-analysis/news/2021/12/16/renewable-energy-and-empowering-indigenous-communities.html</a></p><div class="ref-use">Used for: Evidence that community-owned renewable energy strengthens Indigenous self-determination; comparative outcomes from similar projects.</div></div>
+      <div class="ref-card rev d3"><div class="ref-num" style="color:var(--gold)">Reference 7</div><p>Queensland Government. (2023). <em>Remote area energy supply program.</em> Department of Regional Development, Manufacturing and Water. <a href="https://www.rdmw.qld.gov.au/electricity/remote-area-energy-supply-raes-program" target="_blank">https://www.rdmw.qld.gov.au/electricity/remote-area-energy-supply-raes-program</a></p><div class="ref-use">Used for: QLD DRDMW remote community energy support program eligibility and O&amp;M funding structures.</div></div>
+      <div class="ref-card rev"><div class="ref-num" style="color:var(--forest2)">Reference 8</div><p>Standards Australia. (2020). <em>AS/NZS 4777.1:2016 — Grid connection of energy systems via inverters.</em> SAI Global. <a href="https://www.saiglobal.com" target="_blank">https://www.saiglobal.com</a></p><div class="ref-use">Used for: Electrical standards compliance — inverter connection, battery safety (AS/NZS 5139), and microgrid wiring rules.</div></div>
+      <div class="ref-card rev d1"><div class="ref-num" style="color:var(--ochre)">Reference 9</div><p>Clean Energy Council. (2023). <em>Community energy: A guide for regional and remote communities.</em> Clean Energy Council. <a href="https://www.cleanenergycouncil.org.au/resources/communities" target="_blank">https://www.cleanenergycouncil.org.au/resources/communities</a></p><div class="ref-use">Used for: Community energy co-op governance models, O&amp;M cost benchmarking, and remote microgrid design best-practice guidance.</div></div>
+      <div class="ref-card rev d2"><div class="ref-num" style="color:var(--bark)">Reference 10</div><p>Commonwealth of Australia. (2018). <em>Free, Prior and Informed Consent and extractive industries: A guide for Aboriginal and Torres Strait Islander peoples.</em> Australian Human Rights Commission. <a href="https://humanrights.gov.au/our-work/aboriginal-and-torres-strait-islander-social-justice/publications" target="_blank">https://humanrights.gov.au/our-work/aboriginal-and-torres-strait-islander-social-justice/publications</a></p><div class="ref-use">Used for: FPIC framework requirements, self-determination principles, and community consent process design in the project methodology.</div></div>
+    </div>
+    <!-- Design Thinking Summary -->
+    <div class="dt-strip rev" style="margin-top:52px">
+      <div style="font-family:'Cormorant Garamond',serif;color:var(--gold2);font-size:1.2rem;font-weight:700;margin-bottom:22px">Design Thinking Process — All Stages</div>
+      <div class="dt-steps">
+        <div class="dt-step"><div class="dt-num dt-n1">01</div><div class="dt-title">Empathise</div><div class="dt-desc">PESTEL · User Journey · Community Brief</div></div>
+        <div class="dt-step"><div class="dt-num dt-n2">02</div><div class="dt-title">Define</div><div class="dt-desc">User Needs · Design Requirements · Test Criteria</div></div>
+        <div class="dt-step"><div class="dt-num dt-n3">03</div><div class="dt-title">Ideate</div><div class="dt-desc">7 Concepts · Decision Matrix · Option F★</div></div>
+        <div class="dt-step"><div class="dt-num dt-n4">04</div><div class="dt-title">Prototype</div><div class="dt-desc">3D Node Model · Arduino · System Diagram</div></div>
+        <div class="dt-step"><div class="dt-num dt-n5">05</div><div class="dt-title">Test</div><div class="dt-desc">Pass/Fail Results · Costs · Implementation</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPENDIX -->
+<section style="background:var(--forest);padding:100px 0" id="appendix">
+  <div class="wrap">
+    <div class="eyebrow eyebrow-light">Appendix</div>
+    <h2 class="sec-h sec-h-white">Appendix Materials</h2>
+    <p class="sec-lead sec-lead-dim">Supporting artefacts, raw data, and supplementary materials referenced throughout this design proposal.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px">
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">Appendix A — Decision Matrix Full Scores</div>
+        <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:rgba(255,255,255,.7);line-height:1.9">
+          Option F — Shared Community Microgrid: <span style="color:var(--gold2)">4.5 ★</span><br>
+          Option D — Solar + Battery + Diesel: 3.8<br>
+          Option C — Solar + Battery: 3.5<br>
+          Option G — Household Kits: 3.0<br>
+          Option B — Solar Only: 3.1<br>
+          Option E — Wind-Solar Hybrid: 2.5<br>
+          Option A — Diesel Upgrade: 2.2
+        </div>
+        <div style="margin-top:14px;color:rgba(255,255,255,.55);font-size:.8rem;line-height:1.7">Weights: Reliability 25%, Affordability 20%, Maintainability 20%, Environmental Resilience 15%, Community Ownership 10%, Regulatory Ease 10%. All weights directly derived from PESTEL severity and user needs priority.</div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px">
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">Appendix B — Test Results Summary</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:.74rem">
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.6)">48-hour battery autonomy test</span><span style="color:#4ADE80">✓ PASS</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.6)">O&amp;M affordability vs diesel</span><span style="color:#4ADE80">✓ PASS</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.6)">IP65 + cyclone mount validation</span><span style="color:#4ADE80">✓ PASS</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.6)">Modular swap &lt;60 sec (no tools)</span><span style="color:#4ADE80">✓ PASS</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.6)">Auto-failover sequence (Arduino)</span><span style="color:#4ADE80">✓ PASS</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.6)">Regulatory compliance (AS/NZS)</span><span style="color:#4ADE80">✓ PASS</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="color:rgba(255,255,255,.6)">Community dashboard co-design</span><span style="color:var(--gold2)">⚠ IN PROGRESS</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px">
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">Appendix C — Analytical Model Inputs</div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-family:'JetBrains Mono',monospace;font-size:.74rem">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.55)">Total daily community load</span><span style="color:var(--gold2)">~45 kWh/day</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.55)">Battery capacity</span><span style="color:var(--gold2)">120 kWh LiFePO₄</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.55)">Battery autonomy</span><span style="color:var(--gold2)">48 hr @ 50% DoD</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.55)">Solar array capacity</span><span style="color:var(--gold2)">40 kWp</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.55)">Solar irradiance (Cape York)</span><span style="color:var(--gold2)">~5.5 kWh/m²/day</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.55)">Daily solar generation</span><span style="color:var(--gold2)">160–200 kWh/day</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span style="color:rgba(255,255,255,.55)">Cold storage sub-array</span><span style="color:var(--gold2)">15 kWh dedicated</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:rgba(255,255,255,.55)">Diesel auto-start threshold</span><span style="color:var(--gold2)">&lt;20% SoC</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px">
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">Appendix D — Applicable Standards</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--gold2);display:block;margin-bottom:2px">AS/NZS 4777.1:2016</span><span style="color:rgba(255,255,255,.6);font-size:.8rem">Grid connection of energy systems via inverters.</span></div>
+          <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--gold2);display:block;margin-bottom:2px">AS/NZS 5139:2019</span><span style="color:rgba(255,255,255,.6);font-size:.8rem">Battery energy storage system installation.</span></div>
+          <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--gold2);display:block;margin-bottom:2px">AS/NZS 1170.2 Region C</span><span style="color:rgba(255,255,255,.6);font-size:.8rem">Cyclone uplift resistance for structural mounting.</span></div>
+          <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--gold2);display:block;margin-bottom:2px">Native Title Act 1993 + ILUA</span><span style="color:rgba(255,255,255,.6);font-size:.8rem">Required before any construction on Lama Lama Country.</span></div>
+          <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--gold2);display:block;margin-bottom:2px">FPIC — UN Declaration on Rights of Indigenous Peoples</span><span style="color:rgba(255,255,255,.6);font-size:.8rem">Free, Prior and Informed Consent documented before works commence.</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px;grid-column:1/-1">
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px">Appendix E — Other Considerations</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
+          <div><div style="color:var(--gold2);font-size:.88rem;font-weight:700;margin-bottom:8px">Battery End-of-Life</div><p style="color:rgba(255,255,255,.65);font-size:.82rem;line-height:1.75">LiFePO₄ batteries have a lifespan of 2,000–4,000 cycles (approximately 10–15 years). End-of-life disposal must comply with relevant waste regulations. The community co-op model should establish a battery replacement reserve fund from Year 1.</p></div>
+          <div><div style="color:var(--gold2);font-size:.88rem;font-weight:700;margin-bottom:8px">Scalability</div><p style="color:rgba(255,255,255,.65);font-size:.82rem;line-height:1.75">The modular AC-coupled architecture allows panels and batteries to be added without rewiring the full system. Stage 2 expansion from 20 kWp to 40 kWp can be executed independently based on grant funding tranches.</p></div>
+          <div><div style="color:var(--gold2);font-size:.88rem;font-weight:700;margin-bottom:8px">Future Digital Infrastructure</div><p style="color:rgba(255,255,255,.65);font-size:.82rem;line-height:1.75">The satellite-connected smart metering hub creates the foundation for future community WiFi broadband, digital health monitoring, and remote learning platforms — extending impact beyond power provision alone.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div style="background:var(--charcoal);padding:28px 0;border-top:1px solid rgba(194,97,31,.25)">
+  <div class="wrap" style="display:flex;justify-content:center">
+    <svg viewBox="0 0 900 52" style="width:100%;max-width:900px;height:52px" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#C2611F" opacity="0.45"><circle cx="20" cy="18" r="2.5"/><circle cx="36" cy="12" r="2"/><circle cx="52" cy="18" r="2.5"/><circle cx="68" cy="12" r="2"/><circle cx="84" cy="18" r="2.5"/><circle cx="100" cy="12" r="2"/><circle cx="116" cy="18" r="2.5"/><circle cx="132" cy="12" r="2"/><circle cx="20" cy="38" r="2"/><circle cx="36" cy="44" r="2.5"/><circle cx="52" cy="38" r="2"/><circle cx="68" cy="44" r="2.5"/><circle cx="84" cy="38" r="2"/><circle cx="100" cy="44" r="2.5"/><circle cx="116" cy="38" r="2"/><circle cx="132" cy="44" r="2.5"/></g>
+      <g transform="translate(450,26)"><circle r="20" fill="none" stroke="#C2611F" stroke-width="1" opacity="0.45"/><circle r="13" fill="none" stroke="#E8892A" stroke-width="1" opacity="0.55"/><circle r="7" fill="none" stroke="#F4D03F" stroke-width="1" opacity="0.65"/><circle r="3" fill="#C2611F" opacity="0.75"/><g stroke="#E9C46A" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"><path d="M-5,-11 Q-5,-7 0,-7 Q5,-7 5,-11"/><path d="M-5,11 Q-5,7 0,7 Q5,7 5,11"/></g></g>
+      <g fill="#C2611F" opacity="0.45"><circle cx="768" cy="18" r="2.5"/><circle cx="784" cy="12" r="2"/><circle cx="800" cy="18" r="2.5"/><circle cx="816" cy="12" r="2"/><circle cx="832" cy="18" r="2.5"/><circle cx="848" cy="12" r="2"/><circle cx="864" cy="18" r="2.5"/><circle cx="880" cy="12" r="2"/><circle cx="768" cy="38" r="2"/><circle cx="784" cy="44" r="2.5"/><circle cx="800" cy="38" r="2"/><circle cx="816" cy="44" r="2.5"/><circle cx="832" cy="38" r="2"/><circle cx="848" cy="44" r="2.5"/><circle cx="864" cy="38" r="2"/><circle cx="880" cy="44" r="2.5"/></g>
+    </svg>
+  </div>
+</div>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Lama Lama Microgrid Project</div>
+    <div class="footer-bar"></div>
+    <div class="footer-team">Engineers Without Borders Australia Challenge · Design Area 3.2 · 2026<br>The Electronauts — Mayed Alkaabi · Krithik Sai Jayaprakash · Gaurav Kumar · Karandeep Bedi · Ibrahim El-Bahri</div>
+    <div class="footer-copy">Community-owned hybrid energy for remote outstations</div>
+  </div>
+</footer>
+
+<script>
+// ─── CURSOR ──────────────────────────────────────────────
+var cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+var mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+document.querySelectorAll('a,button,.diag-node,.load-chip,.stat-tick,.feat,.t-card,.risk-hdr,.j-btn,.ptab,.sl-card,.ctog,.mbtn').forEach(function(el){
+  el.addEventListener('mouseenter',function(){cur.style.width='18px';cur.style.height='18px';ring.style.width='52px';ring.style.height='52px';ring.style.opacity='.3';});
+  el.addEventListener('mouseleave',function(){cur.style.width='12px';cur.style.height='12px';ring.style.width='36px';ring.style.height='36px';ring.style.opacity='.5';});
+});
+
+// ─── PROGRESS + NAV ──────────────────────────────────────
+var prog=document.getElementById('progress'),nav=document.getElementById('nav');
+window.addEventListener('scroll',function(){
+  prog.style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';
+  nav.classList.toggle('scrolled',window.scrollY>80);
+});
+
+// ─── HERO CANVAS ─────────────────────────────────────────
+(function(){
+  var c=document.getElementById('hero-canvas');
+  if(!c)return;
+  var ctx=c.getContext('2d'),pts=[];
+  function resize(){c.width=c.offsetWidth;c.height=c.offsetHeight;pts=[];for(var i=0;i<80;i++)pts.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.6+.4,a:Math.random()*.55+.1});}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(function(p){
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(196,154,34,'+p.a+')';ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>c.width)p.vx*=-1;
+      if(p.y<0||p.y>c.height)p.vy*=-1;
+    });
+    for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){
+      var dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle='rgba(196,154,34,'+(0.12*(1-d/110))+')';ctx.lineWidth=.5;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);resize();draw();
+}());
+
+// ─── COUNTER ANIMATION ───────────────────────────────────
+function animCount(el){
+  var t=+el.dataset.target,pre=el.dataset.prefix||'',suf=el.dataset.suffix||'',cur=0,step=t/60;
+  var iv=setInterval(function(){cur=Math.min(cur+step,t);el.textContent=pre+Math.round(cur)+suf;if(cur>=t)clearInterval(iv);},25);
+}
+var cObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){var el=e.target.querySelector('[data-target]');if(el&&!el.dataset.done){el.dataset.done=1;animCount(el);}}});},{threshold:.3});
+document.querySelectorAll('.stat-tick').forEach(function(el){cObs.observe(el);});
+
+// ─── REVEAL ANIMATIONS ───────────────────────────────────
+var rObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.1});
+document.querySelectorAll('.rev,.rev-l,.rev-r').forEach(function(el){rObs.observe(el);});
+
+// ─── PESTEL TABS ─────────────────────────────────────────
+window.showPestel=function(key,btn){
+  document.querySelectorAll('.ppanel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.ptab').forEach(function(t){t.classList.remove('active');});
+  var panel=document.getElementById('pp-'+key);
+  if(panel)panel.classList.add('active');
+  btn.classList.add('active');
+};
+
+// ─── USER JOURNEY ─────────────────────────────────────────
+window.showJ=function(idx,btn){
+  document.querySelectorAll('.j-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.j-btn').forEach(function(b){b.classList.remove('active');});
+  var p=document.getElementById('j'+idx);if(p)p.classList.add('active');
+  btn.classList.add('active');
+};
+
+// ─── NODE INFO ────────────────────────────────────────────
+var nodeData={
+  solar:{t:'Solar PV Array — 40 kWp',d:'Generates 160–200 kWh/day in Cape York\'s high-irradiance environment. Well above daily community demand of 45 kWh. Surplus stored in the battery bank. Monocrystalline panels optimised for tropical heat performance.'},
+  diesel:{t:'Diesel Generator — Backup Only',d:'Auto-starts only when battery state of charge drops below 20%. In normal operation this should be rare. Retained as a safety net for extended cloud periods and fuel price shocks.'},
+  inverter:{t:'Hybrid Inverter & Charge Controller',d:'AC-coupled architecture — solar array and battery operate independently for resilience. Modular swap-out design. Satellite-connected for remote monitoring and auto-failover management year-round.'},
+  battery:{t:'LiFePO₄ Battery Bank — 120 kWh',d:'LiFePO₄ chemistry selected for thermal stability at 50°C+, longer cycle life, and significantly lower fire risk vs NMC. 120 kWh provides 48 hours of autonomy at 50% depth of discharge.'},
+  homes:{t:'Homes — ~20 kWh/day',d:'Powers lighting, fans, refrigeration, and device charging across approximately 40–50 households. First load shed in auto-failover sequence below 20% SoC to protect the health clinic.'},
+  clinic:{t:'Health Clinic — Always On (Priority Load)',d:'Hardwired as priority load — NEVER shed regardless of battery state. Medical devices, medication refrigeration, and emergency lighting guaranteed 24/7. Non-negotiable requirement from community consultation.'},
+  school:{t:'School + WiFi Access',d:'Powers classrooms and dedicated WiFi router. Load shed before homes to preserve household refrigeration. WiFi access identified as critical need in the user journey map.'},
+  cold:{t:'Cold Storage — Dedicated 15 kWh Sub-Array',d:'Upgraded after prototype testing to its own dedicated 15 kWh sub-array. Food security never depends on overall battery state. Addresses the food spoilage pain point identified in the user journey.'},
+  workshop:{t:'Community Workshop',d:'Powers tools, battery chargers, and the local technician workshop where system components are inspected, repaired and tested. Co-located with smart metering hub and satellite monitoring station.'}
+};
+window.showNode=function(key,el){
+  var d=nodeData[key];if(!d)return;
+  var box=document.getElementById('node-info');
+  if(box){box.querySelector('h4').textContent=d.t;box.querySelector('p').textContent=d.d;}
+  document.querySelectorAll('.diag-node,.load-chip').forEach(function(n){n.classList.remove('active-node');});
+  el.classList.add('active-node');
+};
+
+// ─── BATTERY SIMULATOR ───────────────────────────────────
+window.updateSim=function(v){
+  var pct=+v;
+  var pd=document.getElementById('sim-pct'),ss=document.getElementById('sim-status');
+  if(pd)pd.textContent=pct+'%';
+  function sn(id,on,pri){
+    var node=document.getElementById('sn-'+id),led=document.getElementById('led-'+id),st=document.getElementById('st-'+id);
+    if(!node||!led||!st)return;
+    if(pri){node.className='sim-node priority';led.className='led led-p';st.className='sim-st pri';return;}
+    node.className='sim-node '+(on?'on':'off');
+    led.className='led '+(on?'led-on':'led-off');
+    st.className='sim-st'+(on?' act':'');
+  }
+  var ds=document.getElementById('diesel-st');
+  sn('clinic',true,true);
+  if(pct>60){
+    if(ss)ss.textContent='Solar charging — All loads active';
+    sn('homes',true,false);sn('school',true,false);sn('cold',true,false);sn('workshop',true,false);
+    var sh=document.getElementById('st-school');if(sh)sh.textContent='Powered + WiFi';
+    var sh2=document.getElementById('st-homes');if(sh2)sh2.textContent='Powered';
+    var sh3=document.getElementById('st-workshop');if(sh3)sh3.textContent='Powered';
+    if(ds){ds.className='diesel-st d-off';ds.textContent='Diesel Generator — STANDBY (OFF)';}
+  } else if(pct>20){
+    if(ss)ss.textContent='Moderate charge — School shed';
+    sn('homes',true,false);sn('school',false,false);sn('cold',true,false);sn('workshop',true,false);
+    var sh4=document.getElementById('st-school');if(sh4)sh4.textContent='Load Shed';
+    if(ds){ds.className='diesel-st d-off';ds.textContent='Diesel Generator — STANDBY (OFF)';}
+  } else {
+    if(ss)ss.textContent='Critical — Diesel auto-started';
+    sn('homes',false,false);sn('school',false,false);sn('cold',true,false);sn('workshop',false,false);
+    var sh5=document.getElementById('st-homes');if(sh5)sh5.textContent='Load Shed';
+    var sh6=document.getElementById('st-school');if(sh6)sh6.textContent='Load Shed';
+    var sh7=document.getElementById('st-workshop');if(sh7)sh7.textContent='Load Shed';
+    if(ds){ds.className='diesel-st d-on';ds.textContent='Diesel Generator — AUTO-STARTED (ON)';}
+  }
+};
+window.updateSim(75);
+
+// ─── LINE CHART ───────────────────────────────────────────
+var CD={xs:[160,290,420,550,680],diesel:[52000,55000,57000,60000,63000],micro:[29000,23000,18000,17000,16000],years:[1,2,3,4,5]};
+var maxY=72000,sT=20,sH=225;
+var chartAnimated=false,chartView='both';
+function toY(v){return sT+(sH-sT)*(1-v/maxY);}
+function mkPath(arr){return arr.map(function(v,i){return(i?'L':'M')+CD.xs[i]+','+toY(v).toFixed(1);}).join(' ');}
+function mkArea(arr,base){return mkPath(arr)+' L'+CD.xs[4]+','+base+' L'+CD.xs[0]+','+base+' Z';}
+
+function renderChart(view){
+  var dl=document.getElementById('d-line'),ml=document.getElementById('m-line');
+  var da=document.getElementById('d-area'),ma=document.getElementById('m-area'),sa=document.getElementById('sav-area'),sl=document.getElementById('sav-line');
+  if(!dl)return;
+  dl.setAttribute('d',mkPath(CD.diesel));ml.setAttribute('d',mkPath(CD.micro));
+  da.setAttribute('d',mkArea(CD.diesel,sH+2));ma.setAttribute('d',mkArea(CD.micro,sH+2));
+  var savPts=mkPath(CD.diesel)+' '+CD.micro.slice().reverse().map(function(v,i){return'L'+CD.xs[4-i]+','+toY(v).toFixed(1);}).join(' ')+' Z';
+  sa.setAttribute('d',savPts);
+  var avgD=CD.diesel.reduce(function(a,b){return a+b;},0)/5;
+  var avgM=CD.micro.reduce(function(a,b){return a+b;},0)/5;
+  sl.setAttribute('d','M'+CD.xs[0]+','+toY(avgD)+' L'+CD.xs[4]+','+toY(avgM));
+  dl.style.opacity=(view==='micro'||view==='saving')?'0.15':'1';
+  da.style.opacity=(view==='micro'||view==='saving')?'0':'1';
+  ml.style.opacity=(view==='diesel'||view==='saving')?'0.15':'1';
+  ma.style.opacity=(view==='diesel'||view==='saving')?'0':'1';
+  sa.style.opacity=(view==='saving')?'1':'0.35';
+  sl.style.opacity=(view==='saving')?'1':'0';
+  mkDots('d-dots',CD.diesel,'#A0522D',view==='micro');
+  mkDots('m-dots',CD.micro,'#40916C',view==='diesel');
+  buildHover();
+}
+
+function mkDots(id,arr,col,faded){
+  var g=document.getElementById(id);if(!g)return;g.innerHTML='';
+  arr.forEach(function(v,i){
+    var ns='http://www.w3.org/2000/svg';
+    var o=document.createElementNS(ns,'circle');o.setAttribute('cx',CD.xs[i]);o.setAttribute('cy',toY(v));o.setAttribute('r','7');o.setAttribute('fill',col);o.setAttribute('opacity',faded?'0.12':'0.2');
+    var n=document.createElementNS(ns,'circle');n.setAttribute('cx',CD.xs[i]);n.setAttribute('cy',toY(v));n.setAttribute('r','4');n.setAttribute('fill',col);n.setAttribute('opacity',faded?'0.15':'1');
+    g.appendChild(o);g.appendChild(n);
+  });
+}
+
+function buildHover(){
+  var hz=document.getElementById('hover-zones');if(!hz)return;hz.innerHTML='';
+  var ns='http://www.w3.org/2000/svg';
+  CD.xs.forEach(function(x,i){
+    var r=document.createElementNS(ns,'rect');
+    var x0=i===0?60:(CD.xs[i-1]+x)/2;
+    var x1=i===4?720:(x+CD.xs[i+1])/2;
+    r.setAttribute('x',x0);r.setAttribute('y','10');r.setAttribute('width',x1-x0);r.setAttribute('height','230');
+    r.setAttribute('fill','transparent');r.style.cursor='none';
+    r.addEventListener('mouseenter',function(){showTT(i,x);});
+    r.addEventListener('mouseleave',hideTT);
+    hz.appendChild(r);
+  });
+}
+
+function showTT(i,x){
+  var d=CD.diesel[i],m=CD.micro[i],s=d-m;
+  var hl=document.getElementById('h-line');if(hl){hl.setAttribute('x1',x);hl.setAttribute('x2',x);hl.style.opacity='1';}
+  var tt=document.getElementById('tt');if(!tt)return;
+  var fmt=function(v){return '$'+(v/1000).toFixed(0)+'K/yr';};
+  var tx=x>560?x-162:x+12,ty=32;
+  document.getElementById('tt-yr').textContent='Year '+CD.years[i];document.getElementById('tt-yr').setAttribute('x',tx+9);document.getElementById('tt-yr').setAttribute('y',ty+15);
+  document.getElementById('tt-d').textContent='Diesel:    '+fmt(d);document.getElementById('tt-d').setAttribute('x',tx+9);document.getElementById('tt-d').setAttribute('y',ty+31);
+  document.getElementById('tt-m').textContent='Microgrid: '+fmt(m);document.getElementById('tt-m').setAttribute('x',tx+9);document.getElementById('tt-m').setAttribute('y',ty+47);
+  document.getElementById('tt-s').textContent='Saving:    +'+fmt(s);document.getElementById('tt-s').setAttribute('x',tx+9);document.getElementById('tt-s').setAttribute('y',ty+63);
+  var bg=document.getElementById('tt-bg');if(bg){bg.setAttribute('x',tx);bg.setAttribute('y',ty);bg.setAttribute('width',152);bg.setAttribute('height',75);}
+  tt.style.opacity='1';
+}
+function hideTT(){
+  var hl=document.getElementById('h-line');if(hl)hl.style.opacity='0';
+  var tt=document.getElementById('tt');if(tt)tt.style.opacity='0';
+}
+
+function animLines(){
+  if(chartAnimated)return;chartAnimated=true;renderChart(chartView);
+  var dl=document.getElementById('d-line'),ml=document.getElementById('m-line');
+  if(!dl||!ml)return;
+  dl.setAttribute('stroke-dasharray',700);dl.setAttribute('stroke-dashoffset',700);
+  ml.setAttribute('stroke-dasharray',700);ml.setAttribute('stroke-dashoffset',700);
+  dl.style.transition='stroke-dashoffset 1.4s cubic-bezier(.16,1,.3,1)';
+  ml.style.transition='stroke-dashoffset 1.5s cubic-bezier(.16,1,.3,1) .3s';
+  requestAnimationFrame(function(){dl.setAttribute('stroke-dashoffset','0');ml.setAttribute('stroke-dashoffset','0');});
+}
+window.setChartView=function(view,btn){
+  chartView=view;
+  document.querySelectorAll('.ctog').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');renderChart(view);
+};
+var lcObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)animLines();});},{threshold:.3});
+var lcEl=document.getElementById('linechart');if(lcEl)lcObs.observe(lcEl);
+renderChart('both');
+
+// ─── 3D MODEL ─────────────────────────────────────────────
+(function(){
+  var c=document.getElementById('model-canvas');if(!c)return;
+  var ctx=c.getContext('2d');
+  var rX=28,rY=-28,dragging=false,lx=0,ly=0,autoR=true,exploded=false,hl=null;
+  function proj(x,y,z){
+    var rx=rX*Math.PI/180,ry=rY*Math.PI/180;
+    var x1=x*Math.cos(ry)+z*Math.sin(ry),z1=-x*Math.sin(ry)+z*Math.cos(ry);
+    var y1=y*Math.cos(rx)-z1*Math.sin(rx),z2=y*Math.sin(rx)+z1*Math.cos(rx);
+    var sc=290/(z2+580);return{sx:x1*sc+210,sy:y1*sc+230,z:z2};
+  }
+  function dk(col,f){var r=parseInt(col.slice(1,3),16),g=parseInt(col.slice(3,5),16),b=parseInt(col.slice(5,7),16);return'rgb('+Math.round(r*f)+','+Math.round(g*f)+','+Math.round(b*f)+')';}
+  function box(x,y,z,w,h,d,col,alpha){
+    alpha=alpha||1;
+    var p=[proj(x,y,z),proj(x+w,y,z),proj(x+w,y+h,z),proj(x,y+h,z),proj(x,y,z+d),proj(x+w,y,z+d),proj(x+w,y+h,z+d),proj(x,y+h,z+d)];
+    var faces=[{pts:[p[0],p[1],p[2],p[3]],f:1},{pts:[p[4],p[5],p[6],p[7]],f:0.68},{pts:[p[1],p[5],p[6],p[2]],f:0.84},{pts:[p[0],p[4],p[7],p[3]],f:0.74},{pts:[p[3],p[2],p[6],p[7]],f:0.9},{pts:[p[0],p[1],p[5],p[4]],f:0.58}];
+    faces.sort(function(a,b){return(b.pts.reduce(function(s,p){return s+p.z;},0)/4)-(a.pts.reduce(function(s,p){return s+p.z;},0)/4);});
+    faces.forEach(function(face){
+      ctx.save();ctx.globalAlpha=alpha;ctx.beginPath();ctx.moveTo(face.pts[0].sx,face.pts[0].sy);
+      for(var i=1;i<face.pts.length;i++)ctx.lineTo(face.pts[i].sx,face.pts[i].sy);
+      ctx.closePath();ctx.fillStyle=dk(col,face.f);ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.18)';ctx.lineWidth=0.6;ctx.stroke();ctx.restore();
+    });
+  }
+  var pInfo={
+    enclosure:{t:'IP65 Sealed Enclosure',d:'3mm+ wall thickness, continuous gasket channel. Rated to 50°C. Prevents dust, moisture, humidity and wildlife ingress. Corrosion-resistant powder-coated steel.'},
+    switch:{t:'3-Stage Failover Switch Panel',d:'Solar/Battery/Diesel priority with LED status indicators. Labels co-designed in Lamalama language. Replaceable in under 60 seconds without specialist tools.'},
+    battery:{t:'LiFePO₄ Battery Cabinet',d:'Slide-out module on stainless rails — no tools required. 120 kWh capacity. A trained community technician can perform a swap in the field during wet season.'},
+    mount:{t:'Cyclone-Rated Gusset Brackets',d:'15° angled gusset brackets with M8 bolt pattern. Meets AS/NZS 1170.2 Region C cyclone uplift resistance. Pole elevated above flood and feral animal reach.'},
+    gland:{t:'Pest-Proof Compression Gland',d:'Double-compression armoured cable entry port. Prevents feral pigs and rodents from tracking along conduits into the enclosure — a documented tropical remote failure mode.'}
+  };
+  window.highlightPart=function(part){hl=part;var i=pInfo[part];var b=document.getElementById('model-info');if(b&&i){b.querySelector('h4').textContent=i.t;b.querySelector('p').textContent=i.d;}draw();};
+  window.setModelView=function(mode,btn){
+    document.querySelectorAll('.mbtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
+    exploded=(mode==='explode');if(mode==='iso'){rX=28;rY=-28;}else if(mode==='front'){rX=0;rY=0;}else if(mode==='side'){rX=0;rY=-90;}draw();
+  };
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='rgba(194,97,31,0.05)';
+    for(var dx=12;dx<c.width;dx+=24)for(var dy=12;dy<c.height;dy+=24){ctx.beginPath();ctx.arc(dx,dy,1.4,0,Math.PI*2);ctx.fill();}
+    var ex=exploded?1:0;
+    function al(id){return(hl&&hl!==id)?0.18:1;}
+    var bY=exploded?-20:0,lY=exploded?-55:0,bX=exploded?-30:0,sX=exploded?30:0,gZ=exploded?30:0;
+    box(-8,55,-8,16,108,16,'#2C2C2C',al('pole')||0.8);
+    box(-24,48,-24,48,16,48,'#1B4332',al('mount'));
+    box(-20,60,-20,40,12,40,'#244a3a',al('mount'));
+    box(-70,-120+bY,-50,140,165,100,'#2D6A4F',al('enclosure'));
+    box(-72,-134+bY+lY,-52,144,16,104,'#40916C',al('enclosure'));
+    box(-68+bX,-58+bY,-46,62,86,94,'#5C3D1E',al('battery'));
+    box(8+sX,-30+bY,-46,54,50,22,'#C49A22',al('switch'));
+    box(8+sX,-80+bY,-46,54,28,16,'#1a1a18',al('switch'));
+    box(-72,-20+bY,52+gZ,20,14,14,'#8B2500',al('gland'));
+  }
+  c.addEventListener('mousedown',function(e){dragging=true;autoR=false;lx=e.offsetX;ly=e.offsetY;});
+  c.addEventListener('mouseup',function(){dragging=false;});c.addEventListener('mouseleave',function(){dragging=false;});
+  c.addEventListener('mousemove',function(e){if(!dragging)return;rY+=(e.offsetX-lx)*.5;rX+=(e.offsetY-ly)*.5;lx=e.offsetX;ly=e.offsetY;draw();});
+  c.addEventListener('touchstart',function(e){dragging=true;autoR=false;lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:true});
+  c.addEventListener('touchmove',function(e){if(!dragging)return;rY+=(e.touches[0].clientX-lx)*.5;rX+=(e.touches[0].clientY-ly)*.5;lx=e.touches[0].clientX;ly=e.touches[0].clientY;draw();},{passive:true});
+  c.addEventListener('touchend',function(){dragging=false;});
+  (function rot(){if(autoR&&!dragging){rY+=0.2;draw();}requestAnimationFrame(rot);})();
+  draw();
+}());
+
+// ─── SOLAR DAY SIMULATOR ─────────────────────────────────
+(function(){
+  var sl=document.getElementById('t-slider'),ac=document.getElementById('arc-canvas');if(!sl||!ac)return;
+  var actx=ac.getContext('2d');
+  var gen=[0,0,0,0,0,0.2,1.1,4.8,9.2,13.5,16.8,18.2,18.8,18.2,16.4,13.1,9.0,4.5,1.2,0.2,0,0,0,0];
+  var load=[1.2,1.0,0.9,0.8,0.8,1.0,1.4,2.2,2.8,3.0,2.8,2.5,2.6,2.7,2.9,3.1,2.8,2.4,2.1,2.6,3.0,2.4,1.8,1.4];
+  var sky=['#0a0a1a','#0a0a1a','#0c0c1e','#111420','#1e1a2e','#2b2038','#7b3f1e','#c96b2a','#e8a23a','#e8c878','#cce0f0','#c8dff0','#b8d8f0','#a8ccec','#9ec0e8','#c8d8e8','#e0c870','#e09848','#c06820','#7b2810','#2a1838','#0f0a28','#0a0818','#0a0a1a'];
+  var soc=85;
+  function upd(hr){
+    hr=parseInt(hr);var g=gen[hr],l=load[hr],dt=hr>=6&&hr<=18;
+    document.getElementById('sky').style.background=sky[hr];
+    var sun=document.getElementById('sun'),glow=document.getElementById('sun-glow'),hor=document.getElementById('horizon');
+    var sp=(hr/23*88+4)+'%';var op=dt?Math.max(0.1,g/20+0.1):0;
+    if(sun){sun.style.left=sp;sun.style.opacity=op;sun.style.background=(hr<7||hr>17)?'radial-gradient(circle,#ff8c00,#ff4400)':'radial-gradient(circle,#FFF9C4,#FFD600)';sun.style.boxShadow=dt?'0 0 '+(20+g/20*40)+'px '+(10+g/20*20)+'px rgba(255,214,0,'+(0.3+g/20*0.4)+')':'none';}
+    if(glow){glow.style.left=sp;glow.style.opacity=dt?(g/20*0.55):'0';}
+    if(hor)hor.style.background='linear-gradient(to top,rgba(27,67,50,'+(dt?0.5:0.25)+'),transparent)';
+    if(g>l)soc=Math.min(100,soc+(g-l)*0.3);else soc=Math.max(5,soc-(l-g)*0.4);
+    var vg=document.getElementById('sv-gen');if(vg)vg.textContent=g.toFixed(1);
+    var vb=document.getElementById('sv-bat');if(vb)vb.textContent=Math.round(soc);
+    var vl=document.getElementById('sv-load');if(vl)vl.textContent=l.toFixed(1);
+    var vs=document.getElementById('sv-src');if(vs)vs.textContent=g>l?'Solar':g>0?'Hybrid':'Battery';
+    var sg=document.getElementById('ss-gen');if(sg)sg.className='ss'+(g>0?' chg':'');
+    var td=document.getElementById('t-disp');if(td)td.textContent=(hr<10?'0':'')+hr+':00';
+    drawArc(hr);
+  }
+  function drawArc(hr){
+    var w=ac.offsetWidth||700;ac.width=w;ac.height=110;
+    actx.clearRect(0,0,w,110);
+    var p=18,cw=w-p*2,ch=85,mx=20;
+    actx.strokeStyle='rgba(0,0,0,0.06)';actx.lineWidth=1;
+    [0,25,50,75,100].forEach(function(v){var y=p+ch*(1-v/100);actx.beginPath();actx.moveTo(p,y);actx.lineTo(w-p,y);actx.stroke();});
+    actx.beginPath();gen.forEach(function(v,i){var x=p+i*cw/23,y=p+ch*(1-v/mx);if(i===0)actx.moveTo(x,y);else actx.lineTo(x,y);});
+    actx.lineTo(w-p,p+ch);actx.closePath();actx.fillStyle='rgba(196,154,34,0.14)';actx.fill();
+    actx.beginPath();gen.forEach(function(v,i){var x=p+i*cw/23,y=p+ch*(1-v/mx);if(i===0)actx.moveTo(x,y);else actx.lineTo(x,y);});
+    actx.strokeStyle='#C49A22';actx.lineWidth=2.5;actx.setLineDash([]);actx.stroke();
+    actx.beginPath();load.forEach(function(v,i){var x=p+i*cw/23,y=p+ch*(1-v/mx);if(i===0)actx.moveTo(x,y);else actx.lineTo(x,y);});
+    actx.strokeStyle='rgba(139,80,20,0.65)';actx.lineWidth=1.5;actx.setLineDash([4,3]);actx.stroke();actx.setLineDash([]);
+    var cx=p+hr*cw/23;actx.beginPath();actx.moveTo(cx,p-3);actx.lineTo(cx,p+ch+3);actx.strokeStyle='#1B4332';actx.lineWidth=2;actx.stroke();
+    var cy=p+ch*(1-gen[hr]/mx);actx.beginPath();actx.arc(cx,cy,5,0,Math.PI*2);actx.fillStyle='#C49A22';actx.fill();actx.strokeStyle='white';actx.lineWidth=1.5;actx.stroke();
+    actx.fillStyle='rgba(194,97,31,0.28)';gen.forEach(function(v,i){if(i%2===0){var x=p+i*cw/23,y=p+ch*(1-v/mx);actx.beginPath();actx.arc(x,y,2,0,Math.PI*2);actx.fill();}});
+  }
+  sl.addEventListener('input',function(e){upd(e.target.value);});upd(12);window.addEventListener('resize',function(){upd(sl.value);});
+}());
+
+// ─── SONGLINES MAP ────────────────────────────────────────
+(function(){
+  var c=document.getElementById('sl-canvas');if(!c)return;
+  var ctx=c.getContext('2d'),anim=0,actv=-1;
+  var W,H;
+  function resize(){W=c.offsetWidth;H=Math.round(W*0.77);c.width=W;c.height=H;}
+  resize();window.addEventListener('resize',resize);
+  var nodes=[{x:.5,y:.45,r:.1,col:'#C49A22'},{x:.25,y:.24,col:'#5C3D1E'},{x:.75,y:.24,col:'#8B2500'},{x:.15,y:.67,col:'#2D6A4F'},{x:.85,y:.67,col:'#1B4332'},{x:.5,y:.87,col:'#40916C'}];
+  var tracks=[[0,1],[0,2],[0,3],[0,4],[0,5]];
+  var labels=['Solar Array\n40 kWp','Homes','Clinic','Cold Storage','School','Workshop'];
+  function lp(a,b,t){return a+(b-a)*t;}
+  function dotTrack(x1,y1,x2,y2,col,alpha){
+    var d=Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)),steps=Math.floor(d/14),ang=Math.atan2(y2-y1,x2-x1)+Math.PI/2;
+    ctx.fillStyle=col;ctx.globalAlpha=alpha;
+    for(var i=0;i<=steps;i++){var t=i/steps,x=lp(x1,x2,t),y=lp(y1,y2,t),off=(i%2===0)?3:-3;ctx.beginPath();ctx.arc(x+Math.cos(ang)*off,y+Math.sin(ang)*off,i%2===0?2.5:1.8,0,Math.PI*2);ctx.fill();}
+    ctx.globalAlpha=1;
+  }
+  function concentric(cx,cy,rings,col,alpha){
+    rings.forEach(function(r,idx){
+      var steps=Math.round(2*Math.PI*r/12),br=[0.9,0.75,0.6,0.5][idx%4];
+      ctx.fillStyle=col;ctx.globalAlpha=alpha*br;
+      for(var j=0;j<steps;j++){var a=j/steps*Math.PI*2;ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2.2,0,Math.PI*2);ctx.fill();}
+    });ctx.globalAlpha=1;
+  }
+  function uShape(cx,cy,sz,col,alpha){
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.lineCap='round';ctx.globalAlpha=alpha;
+    ctx.beginPath();ctx.moveTo(cx-sz,cy-sz*.4);ctx.quadraticCurveTo(cx-sz,cy+sz*.5,cx,cy+sz*.5);ctx.quadraticCurveTo(cx+sz,cy+sz*.5,cx+sz,cy-sz*.4);ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy-sz*.65,3,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.globalAlpha=1;
+  }
+  function pulse(x1,y1,x2,y2,t,col){
+    var pt=t%1,x=lp(x1,x2,pt),y=lp(y1,y2,pt);
+    ctx.save();ctx.globalAlpha=.85;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.28;ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='rgba(194,97,31,0.07)';for(var dx=12;dx<W;dx+=20)for(var dy=12;dy<H;dy+=20){ctx.beginPath();ctx.arc(dx,dy,1.2,0,Math.PI*2);ctx.fill();}
+    anim+=0.008;
+    var cx=nodes[0].x*W,cy=nodes[0].y*H;
+    tracks.forEach(function(tr,i){
+      var nx=nodes[tr[1]].x*W,ny=nodes[tr[1]].y*H;
+      var ia=(actv===-1||actv===3||actv===i);
+      dotTrack(cx,cy,nx,ny,'#C2611F',ia?0.65:0.12);
+      if(ia)pulse(cx,cy,nx,ny,anim+i*0.2,'#E9C46A');
+    });
+    // Central waterhole
+    var iw=(actv===-1||actv===0);
+    concentric(cx,cy,[nodes[0].r*W,nodes[0].r*W*.72,nodes[0].r*W*.5,nodes[0].r*W*.3],'#C49A22',iw?0.85:0.12);
+    ctx.globalAlpha=iw?0.9:0.12;ctx.fillStyle='#3D1F0A';ctx.font='bold '+Math.round(W*.02)+'px monospace';ctx.textAlign='center';ctx.fillText('Solar Array',cx,cy-4);ctx.fillText('40 kWp',cx,cy+10);ctx.globalAlpha=1;
+    // Dwelling nodes
+    nodes.slice(1).forEach(function(n,i){
+      var nx=n.x*W,ny=n.y*H,clinic=(i===1);
+      var ia=(actv===-1||actv===2||(actv===4&&clinic));
+      var rs=clinic?[W*.055,W*.038,W*.022]:[W*.042,W*.026];
+      concentric(nx,ny,rs,n.col,ia?0.82:0.1);
+      uShape(nx,ny,clinic?W*.035:W*.026,n.col,ia?0.88:0.1);
+      ctx.save();ctx.globalAlpha=ia?0.88:0.1;ctx.fillStyle=clinic?'#FFCCAA':'#F2E8D0';ctx.font='bold '+Math.round(W*.019)+'px monospace';ctx.textAlign='center';ctx.fillText(labels[i+1],nx,ny+(clinic?W*.075:W*.062));ctx.restore();
+      if(actv===4&&clinic){ctx.save();ctx.globalAlpha=.28+Math.sin(anim*4)*.2;ctx.strokeStyle='#FF6B35';ctx.lineWidth=2;ctx.beginPath();ctx.arc(nx,ny,(W*.055+Math.sin(anim*3)*W*.01),0,Math.PI*2);ctx.stroke();ctx.restore();}
+    });
+    requestAnimationFrame(draw);
+  }
+  window.hlSongline=function(id){actv=id;document.querySelectorAll('.sl-card').forEach(function(c,i){c.classList.toggle('act',i===id);});};
+  window.clrSongline=function(){actv=-1;document.querySelectorAll('.sl-card').forEach(function(c){c.classList.remove('act');});};
+  draw();
+}());
+
+// ─── RISK ACCORDION ──────────────────────────────────────
+window.toggleRisk=function(item){
+  var open=item.classList.contains('open');
+  document.querySelectorAll('.risk-item').forEach(function(i){i.classList.remove('open');i.querySelector('.risk-body').style.maxHeight='0';});
+  if(!open){item.classList.add('open');var b=item.querySelector('.risk-body');b.style.maxHeight=b.scrollHeight+'px';}
+};
+
+// ─── GANTT TABLE ──────────────────────────────────────────
+(function(){
+  var gb=document.getElementById('gantt-body');if(!gb)return;
+  var rows=[
+    {p:'Community Consultation & FPIC',c:[1,0,0,0,0],col:'#C49A22'},
+    {p:'ARENA/DRDMW Funding Applications',c:[1,1,0,0,0],col:'#2D6A4F'},
+    {p:'Detailed Engineering Design',c:[0,1,1,0,0],col:'#2D6A4F'},
+    {p:'Legal/Native Title Compliance',c:[1,1,0,0,0],col:'#8B2500'},
+    {p:'Equipment Procurement',c:[0,0,1,0,0],col:'#C49A22'},
+    {p:'Stage 1 Install (20kWp+60kWh)',c:[0,0,1,1,0],col:'#1B4332'},
+    {p:'Community Technician Training',c:[0,0,1,1,0],col:'#40916C'},
+    {p:'Stage 2 Install (Full System)',c:[0,0,0,0,1],col:'#1B4332'},
+    {p:'Satellite Monitoring Commission',c:[0,0,0,1,1],col:'#40916C'},
+    {p:'Community Co-op O&M Active',c:[0,0,0,0,1],col:'#C49A22'}
+  ];
+  rows.forEach(function(r,ri){
+    var tr=document.createElement('tr');
+    tr.style.background=ri%2===0?'rgba(27,67,50,0.03)':'white';
+    var td0=document.createElement('td');
+    td0.style.cssText='padding:9px 14px;font-size:.78rem;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;white-space:nowrap';
+    td0.textContent=r.p;tr.appendChild(td0);
+    r.c.forEach(function(active){
+      var td=document.createElement('td');
+      td.style.cssText='padding:7px 5px;border-bottom:1px solid #f0f0f0;text-align:center';
+      if(active){
+        var bar=document.createElement('div');
+        bar.style.cssText='height:14px;border-radius:3px;opacity:0.85;transition:opacity .2s;background:'+r.col;
+        bar.addEventListener('mouseenter',function(){bar.style.opacity='1';});
+        bar.addEventListener('mouseleave',function(){bar.style.opacity='0.85';});
+        td.appendChild(bar);
+      }
+      tr.appendChild(td);
+    });
+    gb.appendChild(tr);
+  });
+}());
+</script>
+</body>
+</html>
